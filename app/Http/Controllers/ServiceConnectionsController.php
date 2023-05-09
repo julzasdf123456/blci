@@ -224,17 +224,16 @@ class ServiceConnectionsController extends AppBaseController
         $serviceConnections = DB::table('CRM_ServiceConnections')
             ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
             ->leftJoin('CRM_Towns', 'CRM_ServiceConnections.Town', '=', 'CRM_Towns.id')
-            ->leftJoin('CRM_ServiceConnectionAccountTypes', 'CRM_ServiceConnections.AccountType', '=', 'CRM_ServiceConnectionAccountTypes.id')
-            ->leftJoin('CRM_ServiceConnectionCrew', 'CRM_ServiceConnections.StationCrewAssigned', '=', 'CRM_ServiceConnectionCrew.id')
+            ->leftJoin('users', 'CRM_ServiceConnections.UserId', '=', 'users.id')
             ->select('CRM_ServiceConnections.id as id',
                         'CRM_ServiceConnections.AccountCount as AccountCount', 
                         'CRM_ServiceConnections.ServiceAccountName as ServiceAccountName',
-                        'CRM_ServiceConnections.DateOfApplication as DateOfApplication', 
+                        'CRM_ServiceConnections.DateOfApplication', 
+                        'CRM_ServiceConnections.TimeOfApplication', 
                         'CRM_ServiceConnections.ContactNumber as ContactNumber', 
                         'CRM_ServiceConnections.EmailAddress as EmailAddress',  
                         'CRM_ServiceConnections.AccountApplicationType as AccountApplicationType', 
                         'CRM_ServiceConnections.AccountOrganization as AccountOrganization', 
-                        'CRM_ServiceConnections.AccountApplicationType as AccountApplicationType', 
                         'CRM_ServiceConnections.ConnectionApplicationType as ConnectionApplicationType',
                         'CRM_ServiceConnections.MemberConsumerId as MemberConsumerId',
                         'CRM_ServiceConnections.Status as Status',  
@@ -249,10 +248,19 @@ class ServiceConnectionsController extends AppBaseController
                         'CRM_ServiceConnections.DateTimeLinemenArrived as DateTimeLinemenArrived', 
                         'CRM_Towns.Town as Town',
                         'CRM_Barangays.Barangay as Barangay',
-                        'CRM_ServiceConnectionAccountTypes.AccountType as AccountType',
-                        'CRM_ServiceConnectionCrew.StationName as StationName',
-                        'CRM_ServiceConnectionCrew.CrewLeader as CrewLeader',
-                        'CRM_ServiceConnectionCrew.Members as Members')
+                        'CRM_ServiceConnections.AccountType',
+                        'CRM_ServiceConnections.ServiceNumber',
+                        'CRM_ServiceConnections.ConnectionSchedule',
+                        'CRM_ServiceConnections.LoadType',
+                        'CRM_ServiceConnections.ZoneAndBlock',
+                        'CRM_ServiceConnections.TransformerID',
+                        'CRM_ServiceConnections.LoadInKva',
+                        'CRM_ServiceConnections.PoleNumber',
+                        'CRM_ServiceConnections.Feeder',
+                        'CRM_ServiceConnections.ChargeTo',
+                        'CRM_ServiceConnections.CertificateOfConnectionIssuedOn',
+                        'users.name'
+                        )
         ->where('CRM_ServiceConnections.id', $id)
         ->where(function ($query) {
             $query->where('CRM_ServiceConnections.Trash', 'No')
@@ -260,10 +268,13 @@ class ServiceConnectionsController extends AppBaseController
         })
         ->first(); 
 
-        $serviceConnectionInspections = ServiceConnectionInspections::where('ServiceConnectionId', $id)
-                                ->orderByDesc('created_at')
-                                ->first();
-
+        $serviceConnectionInspections = DB::table('CRM_ServiceConnectionInspections')
+            ->leftJoin('users', 'CRM_ServiceConnectionInspections.Inspector', '=', 'users.id')
+            ->whereRaw("ServiceConnectionId='" . $id . "'")
+            ->select('CRM_ServiceConnectionInspections.*', 'users.name')
+            ->orderByDesc('CRM_ServiceConnectionInspections.created_at')
+            ->first();
+        
         $serviceConnectionMeter = ServiceConnectionMtrTrnsfrmr::where('ServiceConnectionId', $id)->first();
 
         $serviceConnectionTransactions = ServiceConnectionPayTransaction::where('ServiceConnectionId', $id)->first();
@@ -410,18 +421,13 @@ class ServiceConnectionsController extends AppBaseController
 
         $towns = Towns::orderBy('Town')->pluck('Town', 'id');
 
-        $memberConsumer = null;
-
         $accountTypes = ServiceConnectionAccountTypes::orderBy('id')->get();
 
-        if (env('APP_AREA_CODE') == 15) {
-            $crew = ServiceConnectionCrew::orderBy('StationName')
-                ->pluck('StationName', 'id');
-        } else {
-            $crew = ServiceConnectionCrew::where('Office', env('APP_LOCATION'))
-                ->orderBy('StationName')
-                ->pluck('StationName', 'id');
-        }
+        $serviceAppliedFor = ServiceAppliedFor::orderBy('ServiceAppliedFor')->get();
+
+        $inspectors = User::role('Inspector')->get();
+
+        $inspection = ServiceConnectionInspections::where('ServiceConnectionId', $id)->first();
 
         if (empty($serviceConnections)) {
             Flash::error('Service Connections not found');
@@ -433,7 +439,15 @@ class ServiceConnectionsController extends AppBaseController
          * ASSESS PERMISSIONS
          */
         if(Auth::user()->hasAnyPermission(['update membership', 'sc update', 'Super Admin'])) {
-            return view('service_connections.edit', ['serviceConnections' => $serviceConnections, 'cond' => $cond, 'towns' => $towns, 'memberConsumer' => $memberConsumer, 'accountTypes' => $accountTypes, 'crew' => $crew]);
+            return view('service_connections.edit', [
+                'serviceConnections' => $serviceConnections, 
+                'cond' => $cond, 
+                'towns' => $towns, 
+                'accountTypes' => $accountTypes, 
+                'serviceAppliedFor' => $serviceAppliedFor,
+                'inspectors' => $inspectors,
+                'inspection' => $inspection,
+            ]);
         } else {
             return abort(403, "You're not authorized to update a service connection application.");
         }         
@@ -458,6 +472,14 @@ class ServiceConnectionsController extends AppBaseController
         }
 
         $serviceConnections = $this->serviceConnectionsRepository->update($request->all(), $id);
+
+        // UPDATE SERVICE INSPECTIONS
+        $inspection = ServiceConnectionInspections::where('ServiceConnectionId', $id)->first();
+        if ($inspection != null) {
+            $inspection->Inspector = $request['Inspector'];
+            $inspection->InspectionSchedule = $request['InspectionSchedule'];
+            $inspection->save();
+        }
 
         Flash::success('Service Connections updated successfully.');
 
@@ -488,7 +510,9 @@ class ServiceConnectionsController extends AppBaseController
                 return redirect(route('serviceConnections.index'));
             }
 
-            $this->serviceConnectionsRepository->delete($id);
+            // $this->serviceConnectionsRepository->delete($id);
+            $serviceConnections->Trash='Yes';
+            $serviceConnections->save();
 
             Flash::success('Service Connections deleted successfully.');
 
@@ -972,14 +996,9 @@ class ServiceConnectionsController extends AppBaseController
                                                 <h4>' .$row->ServiceAccountName . '</h4>
                                                 <p class="text-muted" style="margin-bottom: 0;">Acount Number: ' . $row->ConsumerId . '</p>
                                                 <p class="text-muted" style="margin-bottom: 0;">' . $row->Barangay . ', ' . $row->Town  . '</p>
-                                                <a href="' . route('serviceConnections.restore', [$row->ConsumerId]) . '" class="text-primary" style="margin-top: 5px; padding: 8px;" title="Restore"><lord-icon
-                                                        src="https://cdn.lordicon.com/ybgqhhgb.json"
-                                                        trigger="loop"
-                                                        delay="1500"
-                                                        colors="primary:#e83a30,secondary:#e83a30"
-                                                        stroke="100"
-                                                        style="width:25px;height:25px">
-                                                    </lord-icon></a>
+                                                <a href="' . route('serviceConnections.restore', [$row->ConsumerId]) . '" class="text-primary" style="margin-top: 5px; padding: 8px;" title="Restore">
+                                                    <i class="fas fa-recycle"></i>
+                                                </a>
                                             </div>     
                                         </div> 
 

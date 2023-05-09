@@ -90,6 +90,13 @@
             margin-right: 25px;
         }
 
+        .badge-md {
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 0.8em !important;
+            margin-right: 25px;
+        }
+
         .bg-disabled {
             background:#878787;
             color: white;
@@ -171,6 +178,12 @@
         .indent-td {
             padding-left: 28px !important;
         }
+
+        .p-x0 {
+            padding: 0px !important;
+            margin: 0px !important;
+        }
+        
     </style>
 
     @yield('third_party_stylesheets')
