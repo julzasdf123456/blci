@@ -104,13 +104,32 @@ class ServiceConnectionInspectionsAPI extends Controller {
         $serviceConnectionInspections->Inspector = $request['Inspector'];
 
         $serviceConnections->Status = $request['Status'];
-        // UPDATE SPANNING
-        $span = isset($request['SDWLengthAsInstalled']) ? floatval($request['SDWLengthAsInstalled']) : 0;
-        if ($span >= 70) {
-            $serviceConnections->LongSpan = 'Yes';
-        } else {
-            $serviceConnections->LongSpan = 'No';
-        }
+        
+        $serviceConnectionInspections->LightingOutlets = $request['LightingOutlets'];
+        $serviceConnectionInspections->ConvenienceOutlets = $request['ConvenienceOutlets'];
+        $serviceConnectionInspections->Motor = $request['Motor'];
+        $serviceConnectionInspections->TotalLoad = $request['TotalLoad'];
+        $serviceConnectionInspections->ContractedDemand = $request['ContractedDemand'];
+        $serviceConnectionInspections->ContractedEnergy = $request['ContractedEnergy'];
+        $serviceConnectionInspections->DistanceFromSecondaryLine = $request['DistanceFromSecondaryLine'];
+        $serviceConnectionInspections->SizeOfSecondary = $request['SizeOfSecondary'];
+        $serviceConnectionInspections->SizeOfSDW = $request['SizeOfSDW'];
+        $serviceConnectionInspections->TypeOfSDW = $request['TypeOfSDW'];
+        $serviceConnectionInspections->ServiceEntranceStatus = $request['ServiceEntranceStatus'];
+        $serviceConnectionInspections->HeightOfSDW = $request['HeightOfSDW'];
+        $serviceConnectionInspections->DistanceFromTransformer = $request['DistanceFromTransformer'];
+        $serviceConnectionInspections->SizeOfTransformer = $request['SizeOfTransformer'];
+        $serviceConnectionInspections->TransformerNo = $request['TransformerNo'];
+        $serviceConnectionInspections->PoleNo = $request['PoleNo'];
+        $serviceConnectionInspections->ConnectedFeeder = $request['ConnectedFeeder'];
+        $serviceConnectionInspections->SizeOfSvcPoles = $request['SizeOfSvcPoles'];
+        $serviceConnectionInspections->HeightOfSvcPoles = $request['HeightOfSvcPoles'];
+        $serviceConnectionInspections->LinePassingPrivateProperty = $request['LinePassingPrivateProperty'];
+        $serviceConnectionInspections->WrittenConsentByPropertyOwner = $request['WrittenConsentByPropertyOwner'];
+        $serviceConnectionInspections->ObstructionOfLines = $request['ObstructionOfLines'];
+        $serviceConnectionInspections->LinePassingRoads = $request['LinePassingRoads'];
+        $serviceConnectionInspections->Recommendation = $request['Recommendation'];
+        $serviceConnectionInspections->ForPayment = $request['ForPayment'];
 
         if ($serviceConnectionInspections->save()) {
             $serviceConnections->save();

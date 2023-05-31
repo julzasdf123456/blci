@@ -68,10 +68,10 @@ use Illuminate\Support\Facades\Auth;
                 <div class="card shadow-none">
                     <div class="card-header p-2">
                         <ul class="nav nav-pills">
-                            <li class="nav-item"><a class="nav-link active" href="#details" data-toggle="tab">
+                            <li class="nav-item"><a class="nav-link" href="#details" data-toggle="tab">
                                 <i class="fas fa-info-circle"></i>
                                 Application Basic Details</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#verification" data-toggle="tab">
+                            <li class="nav-item"><a class="nav-link active" href="#verification" data-toggle="tab">
                                 <i class="fas fa-clipboard-check"></i>
                                 Verification</a></li>
                             <li class="nav-item"><a class="nav-link" href="#metering" data-toggle="tab">
@@ -92,11 +92,11 @@ use Illuminate\Support\Facades\Auth;
                     </div>
                     <div class="card-body p-0">
                         <div class="tab-content">
-                            <div class="tab-pane active" id="details">
+                            <div class="tab-pane" id="details">
                                 @include('service_connections.tab_details')
                             </div>
 
-                            <div class="tab-pane" id="verification">
+                            <div class="tab-pane active" id="verification">
                                 @include('service_connections.tab_verification')
                             </div>
 
