@@ -867,3 +867,6 @@ Route::resource('signatories', App\Http\Controllers\SignatoriesController::class
 
 
 Route::resource('serviceAppliedFors', App\Http\Controllers\ServiceAppliedForController::class);
+
+
+Route::resource('paymentOrders', App\Http\Controllers\PaymentOrderController::class);

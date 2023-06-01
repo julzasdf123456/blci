@@ -52,7 +52,7 @@
                <tr>
                   <td>Customer Deposit</td>
                   <td>
-                     <input type="number" step="any" id="OverheadExpenses" name="OverheadExpenses" class="form-control form-control-sm text-right" autofocus>
+                     <input type="number" step="any" id="CustomerDeposit" name="CustomerDeposit" class="form-control form-control-sm text-right" autofocus>
                   </td>
                </tr>
                <tr>
