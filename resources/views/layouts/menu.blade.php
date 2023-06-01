@@ -97,30 +97,6 @@ use Illuminate\Support\Facades\Auth;
                         <p>New Application</p>
                     </a>
                 </li>
-
-                <li class="nav-item">
-                    <a href="{{ route('serviceConnections.re-installation-search') }}"
-                    class="nav-link {{ Request::is('serviceConnections.re-installation-search') ? 'active' : '' }}">
-                        <i class="fas fa-plus nav-icon text-warning"></i>
-                        <p>New Re-Installtion</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{{ route('serviceConnections.relocation-search') }}"
-                    class="nav-link {{ Request::is('serviceConnections.relocation-search') ? 'active' : '' }}">
-                        <i class="fas fa-plus nav-icon text-warning"></i>
-                        <p>New Relocation</p>
-                    </a>
-                </li>
-
-                <li class="nav-item">
-                    <a href="{{ route('serviceConnections.change-name-search') }}"
-                    class="nav-link {{ Request::is('serviceConnections.change-name-search') ? 'active' : '' }}">
-                        <i class="fas fa-plus nav-icon text-warning"></i>
-                        <p>Change Name</p>
-                    </a>
-                </li>
             @endcanany
 
             @if (Auth::user()->hasRole('Metering Personnel'))

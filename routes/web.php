@@ -146,6 +146,7 @@ Route::get('/service_connections/print-mriv/{town}/{from}/{to}', [ServiceConnect
 Route::get('/service_connections/update-status', [ServiceConnectionsController::class, 'updateStatus'])->name('serviceConnections.update-status');
 Route::get('/service_connections/sevice-connections-report', [ServiceConnectionsController::class, 'serviceConnectionsReport'])->name('serviceConnections.sevice-connections-report');
 Route::get('/service_connections/print-sevice-connections-report/{town}/{from}/{to}', [ServiceConnectionsController::class, 'printServiceConnectionsReport'])->name('serviceConnections.print-sevice-connections-report');
+Route::get('/service_connections/payment-order/{scid}', [ServiceConnectionsController::class, 'paymentOrder'])->name('serviceConnections.payment-order');
 Route::resource('serviceConnections', App\Http\Controllers\ServiceConnectionsController::class);
 
 

@@ -5,9 +5,9 @@
             <p class="text-danger"><i class="fas fa-info-circle ico-tab"></i> <i>NOTE that you can't create payment invoice if the inspection isn't approved or successful.</i></p>
         @else
             @if (Auth::user()->hasAnyRole(['Administrator', 'Heads and Managers', 'Service Connection Assessor'])) 
-                <a href="{{ route('serviceConnectionPayTransactions.create-step-four', [$serviceConnections->id]) }}" class="btn btn-primary btn-sm" title="Add Payment Transaction">
+                <a href="{{ route('serviceConnections.payment-order', [$serviceConnections->id]) }}" class="btn btn-primary btn-sm" title="Create Payment Order">
                     <i class="fas fa-plus ico-tab"></i>
-                    Create Payment Invoice</a>
+                    Create Payment Order</a>
             @endif
         @endif
     @endif
@@ -90,7 +90,7 @@
                     Update Payment</a>
                 <a href="" class="btn btn-sm btn-success">
                    <i class="fas fa-print ico-tab"></i>
-                    Print Invoice</a>
+                    Print Order</a>
             @endif
         </div>
     @else

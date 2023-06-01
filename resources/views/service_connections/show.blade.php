@@ -79,7 +79,7 @@ use Illuminate\Support\Facades\Auth;
                                 Metering and Transformer</a></li>
                             <li class="nav-item"><a class="nav-link" href="#invoice" data-toggle="tab">
                                 <i class="fas fa-file-invoice-dollar"></i>
-                                Payment Invoice</a></li>
+                                Payment Order</a></li>
                             {{-- @if ($serviceConnections->LoadCategory == 'above 5kVa' | $serviceConnections->LongSpan == 'Yes')
                             <li class="nav-item"><a class="nav-link" href="#bom" data-toggle="tab">
                                 <i class="fas fa-toolbox"></i>
