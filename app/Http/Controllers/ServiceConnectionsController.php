@@ -41,6 +41,8 @@ use App\Models\TransactionIndex;
 use App\Models\ServiceAccounts;
 use App\Models\MemberConsumerTypes;
 use App\Models\Signatories;
+use App\Models\WarehouseHead;
+use App\Models\WarehouseItems;
 use App\Exports\ServiceConnectionApplicationsReportExport;
 use App\Exports\ServiceConnectionEnergizationReportExport;
 use App\Exports\DynamicExportsNoBillingMonth;
@@ -3666,8 +3668,56 @@ class ServiceConnectionsController extends AppBaseController
     }
     
     public function paymentOrder($scId) {
-        return view('/service_connections/payment_order', [
+        $whHead = DB::connection('mysql')
+            ->table('tblor_head')
+            ->whereRaw("appl_no='" . $scId . "'")
+            ->select('*')
+            ->first();
 
+        if ($whHead != null) {
+            $whItems = DB::connection('mysql')
+                ->table('tblor_line')
+                ->whereRaw("req_no='" . $whHead->orderno . "'")
+                ->select('*')
+                ->get();
+        } else {
+            $whItems = [];
+        }     
+        
+        $serviceConnection = DB::connection('sqlsrv')
+            ->table('CRM_ServiceConnections')
+            ->whereRaw("id='" . $scId . "'")
+            ->select('*')
+            ->first();
+        
+        return view('/service_connections/payment_order', [
+            'whHead' => $whHead,
+            'whItems' => $whItems,
+            'serviceConnection' => $serviceConnection,
         ]);
     }
+
+    public function savePaymentOrder(Request $request) {
+        $materialItems = $request['MaterialItems'];
+        $materialItems = json_decode(stripslashes($materialItems));
+
+        foreach($materialItems as $item) {
+            $whItems = new WarehouseItems;
+            $whItems->reqno = $item->ReqNo;
+            $whItems->ent_no = $item->EntryNo;            
+            $whItems->tdate = date('m/d/Y');
+            $whItems->itemcd = $item->ItemCode;  
+            $whItems->qty = $item->ItemQuantity;  
+            $whItems->uom = $item->ItemUOM; 
+            $whItems->cst = $item->ItemUnitPrice; 
+            $whItems->amt = $item->ItemTotalCost; 
+            $whItems->itemno = $item->ItemNo; 
+            $whItems->rdate = date('m/d/Y');
+            $whItems->rtime = date('h:i A');
+            $whItems->save();
+        }
+
+        return response()->json('ok', 200);
+    }
+
 }

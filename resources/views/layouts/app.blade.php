@@ -184,6 +184,10 @@
             margin: 0px !important;
         }
         
+        .form-control-xs {
+            height: 28px;
+            clear: both;
+        }
     </style>
 
     @yield('third_party_stylesheets')

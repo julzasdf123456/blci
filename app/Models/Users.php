@@ -31,7 +31,7 @@ class Users extends Model
 
     protected $dates = ['deleted_at'];
 
-
+    protected $connection = 'sqlsrv';
 
     public $fillable = [
         'id',
