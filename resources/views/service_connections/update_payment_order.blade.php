@@ -5,11 +5,11 @@
    <div class="container-fluid">
        <div class="row mb-2">
            <div class="col-sm-6">
-               <h4 style="display: inline; margin-right: 15px;">Create Payment Order</h4>
+               <h4 style="display: inline; margin-right: 15px;">Update Payment Order</h4>
            </div>
 
            <div class="col-sm-6">
-               <button class="btn btn-primary float-right" onclick="savePaymentOrder()"><i class="fas fa-dollar-sign ico-tab"></i>Save Payment Order</button>
+               <button class="btn btn-danger float-right" onclick="savePaymentOrder()"><i class="fas fa-dollar-sign ico-tab"></i>Update Payment Order</button>
                <div id="loader" class="spinner-border text-danger float-right gone" style="margin-right: 10px;" role="status">
                    <span class="sr-only">Loading...</span>
                </div>
@@ -27,91 +27,91 @@
             {{-- HEADER --}}
             <table class="table table-borderless table-sm table-hover">
                <tr>
-                  <td>Order No :</td>
-                  <td>
-                     <input type="text" id="OrderNo" class="form-control form-control-xs text-right" value="{{ date('Y-m-d') }}T{{ date('H:i:s') }}" readonly>
-                  </td>
-                  <td></td>
-                  <td></td>
-                  <td>Entry No : </td>
-                  <td>
-                     <input type="number" id="EntryNo" class="form-control form-control-xs text-right" autofocus>
-                  </td>
+                   <td>Order No :</td>
+                   <td>
+                       <input type="text" id="OrderNo" class="form-control form-control-xs text-right" value="{{ $whHead->orderno }}" readonly>
+                   </td>
+                   <td></td>
+                   <td></td>
+                   <td>Entry No : </td>
+                   <td>
+                       <input type="number" id="EntryNo" class="form-control form-control-xs text-right" value="{{ $whHead->ent_no }}" readonly>
+                   </td>
                </tr>
                <tr>
-                  <td>Date :</td>
-                  <td>
-                     <input type="text" id="MIRSDate" class="form-control form-control-xs" value="{{ date('Y-m-d') }}" readonly>
-                  </td>
-                  <td></td>
-                  <td>Invoice No : </td>
-                  <td>
-                     <input type="text" id="InvoiceNo" class="form-control form-control-xs">
-                  </td>
-                  <td rowspan="2">
-                     <textarea name="MIRSNo" id="MIRSNo" cols="30" rows="2" class="form-control form-control-xs" placeholder="MIRS No:"></textarea>
-                  </td>
+                   <td>Date :</td>
+                   <td>
+                       <input type="text" id="MIRSDate" class="form-control form-control-xs" value="{{ $whHead->tdate }}" readonly>
+                   </td>
+                   <td></td>
+                   <td>Invoice No : </td>
+                   <td>
+                       <input type="text" id="InvoiceNo" class="form-control form-control-xs" value="{{ $whHead->invoice }}">
+                   </td>
+                   <td rowspan="2">
+                       <textarea name="MIRSNo" id="MIRSNo" cols="30" rows="2" class="form-control form-control-xs" placeholder="MIRS No:">{{ $whHead->misno }}</textarea>
+                   </td>
                </tr>
                <tr>
-                  <td>Requisition By :</td>
-                  <td>
-                     <input type="text" id="RequisitionById" class="form-control form-control-xs text-right" value="{{ Auth::id() }}" readonly>
-                  </td>
-                  <td>
-                     <input type="text" id="RequisitionByName" class="form-control form-control-xs" value="{{ strtoupper(Auth::user()->name) }}" readonly>
-                  </td>
-                  <td>OR No : </td>
-                  <td>
-                     <input type="text" id="ORNo" class="form-control form-control-xs">
-                  </td>
+                   <td>Requisition By :</td>
+                   <td>
+                       <input type="text" id="RequisitionById" class="form-control form-control-xs text-right" value="{{ $whHead->emp_id }}" readonly>
+                   </td>
+                   <td>
+                       <input type="text" id="RequisitionByName" class="form-control form-control-xs" value="{{ strtoupper($whHead->chkby) }}" readonly>
+                   </td>
+                   <td>OR No : </td>
+                   <td>
+                       <input type="text" id="ORNo" value="{{ $whHead->orno }}" class="form-control form-control-xs">
+                   </td>
                </tr>
                <tr>
-                  <td>Cost Center :</td>
-                  <td>
-                     <input type="text" id="CostCenter" class="form-control form-control-xs">
-                  </td>
-                  <td>
-                     <input type="text" id="CostCenterDescription" class="form-control form-control-xs" readonly>
-                  </td>
-                  <td>Customer: </td>
-                  <td>
-                     <input type="text" id="CustomerId" class="form-control form-control-xs" value="{{ $serviceConnection->id }}" readonly>
-                  </td>
-                  <td>
-                     <input type="text" id="CustomerName" class="form-control form-control-xs" value="{{ $serviceConnection->ServiceAccountName }}" readonly>
-                  </td>
+                   <td>Cost Center :</td>
+                   <td>
+                       <input type="text" id="CostCenter" value="{{ $whHead->ccode }}"  class="form-control form-control-xs">
+                   </td>
+                   <td>
+                       <input type="text" id="CostCenterDescription" class="form-control form-control-xs" readonly>
+                   </td>
+                   <td>Customer: </td>
+                   <td>
+                       <input type="text" id="CustomerId" class="form-control form-control-xs" value="{{ $serviceConnection->id }}" readonly>
+                   </td>
+                   <td>
+                       <input type="text" id="CustomerName" class="form-control form-control-xs" value="{{ $serviceConnection->ServiceAccountName }}" readonly>
+                   </td>
                </tr>
                <tr>
-                  <td>Charge To :</td>
-                  <td>
-                     <input type="text" id="ChargeTo" class="form-control form-control-xs">
-                  </td>
-                  <td></td>
-                  <td>Type Of Service: </td>
-                  <td>
-                     <input type="text" id="TypeOfService" class="form-control form-control-xs" value="NEW INSTALLATION" readonly>
-                  </td>
-                  <td>
-                     <input type="text" id="TypeOfServiceId" class="form-control form-control-xs" value="7" readonly>
-                  </td>
+                   <td>Charge To :</td>
+                   <td>
+                       <input type="text" id="ChargeTo" value="{{ $whHead->dept }}" class="form-control form-control-xs">
+                   </td>
+                   <td></td>
+                   <td>Type Of Service: </td>
+                   <td>
+                       <input type="text" id="TypeOfService" class="form-control form-control-xs" value="NEW INSTALLATION" readonly>
+                   </td>
+                   <td>
+                       <input type="text" id="TypeOfServiceId" class="form-control form-control-xs" value="{{ $whHead->serv_code }}" readonly>
+                   </td>
                </tr>
                <tr>
-                  <td>Project Code :</td>
-                  <td colspan="2">
-                     <input type="text" id="ProjectCode" class="form-control form-control-xs">
-                  </td>
-                  <td>Remarks: </td>
-                  <td colspan="2" rowspan="2">
-                     <textarea name="Remarks" id="Remarks" cols="30" rows="2" class="form-control form-control-xs" placeholder="Remarks/Notes/Comments"></textarea>
-                  </td>
+                   <td>Project Code :</td>
+                   <td colspan="2">
+                       <input type="text" id="ProjectCode" value="{{ $whHead->pcode }}" class="form-control form-control-xs">
+                   </td>
+                   <td>Remarks: </td>
+                   <td colspan="2" rowspan="2">
+                       <textarea name="Remarks" id="Remarks" cols="30" rows="2" class="form-control form-control-xs" placeholder="Remarks/Notes/Comments"></textarea>
+                   </td>
                </tr>
                <tr>
-                  <td>Requested By :</td>
-                  <td colspan="2">
-                     <input type="text" id="RequestedBy" class="form-control form-control-xs" value="{{ strtoupper(Auth::user()->name) }}" readonly>
-                  </td> 
+                   <td>Requested By :</td>
+                   <td colspan="2">
+                       <input type="text" id="RequestedBy" class="form-control form-control-xs" value="{{ $whHead->chkby }}" readonly>
+                   </td> 
                </tr>
-            </table>
+           </table>
 
             <div class="divider"></div>
 
@@ -148,18 +148,33 @@
             {{-- ITEMS LIST --}}
             <table id="items-list" class="table table-bordered table-sm table-hover">
                <thead>
-                  <th>Item Code</th>
-                  <th>Description</th>
-                  <th>Asset Code</th>
-                  <th>Quantity</th>
-                  <th>UOM</th>
-                  <th>Unit Price</th>
-                  <th>Total Cost</th>
+                   <th>Item Code</th>
+                   <th>Description</th>
+                   <th>Asset Code</th>
+                   <th>Quantity</th>
+                   <th>UOM</th>
+                   <th>Unit Price</th>
+                   <th>Total Cost</th>
                </thead>
                <tbody>
-
+                   @foreach ($whItems as $item)
+                       <tr id="{{ $item->id }}">
+                           <td>{{ $item->itemcd }}</td>
+                           <td>{{ $item->itm_desc }}</td>
+                           <td>{{ $item->ascode }}</td>
+                           <td class="text-right">{{ $item->qty }}</td>
+                           <td class="text-right">{{ $item->uom }}</td>
+                           <td class="text-right">{{ is_numeric($item->cst) ? round(floatval($item->cst), 2) : 0 }}</td>
+                           <td class="text-right">
+                              <strong class="text-primary">{{ is_numeric($item->amt) ? round(floatval($item->amt), 2) : 0 }}</strong>
+                           </td>
+                           <td>
+                              <button onclick='removeItem(`{{ $item->id }}`, `OLD`)' class='btn btn-xs btn-link text-danger' style='margin-left: 10px;'><i class='fas fa-trash'></i></button>
+                           </td>
+                       </tr>
+                   @endforeach
                </tbody>
-            </table>
+           </table>
          </div>
       </div>
    </div>
@@ -175,43 +190,43 @@
               <tr>
                  <td>Material Deposit</td>
                  <td>
-                    <input type="number" step="any" onkeyup="validateTotalInputs()" id="MaterialDeposit" name="MaterialDeposit" class="form-control form-control-sm text-right" autofocus>
+                    <input type="number" step="any" value="{{ $paymentOrder->MaterialDeposit }}" onkeyup="validateTotalInputs()" id="MaterialDeposit" name="MaterialDeposit" class="form-control form-control-sm text-right" autofocus>
                  </td>
               </tr>
               <tr>
                  <td>Over-head Expenses</td>
                  <td>
-                    <input type="number" step="any" onkeyup="validateTotalInputs()" id="OverheadExpenses" name="OverheadExpenses" class="form-control form-control-sm text-right" autofocus>
+                    <input type="number" step="any" value="{{ $paymentOrder->OverheadExpenses }}" onkeyup="validateTotalInputs()" id="OverheadExpenses" name="OverheadExpenses" class="form-control form-control-sm text-right" autofocus>
                  </td>
               </tr>
               <tr>
                  <td>Transformer Rental Fees</td>
                  <td>
-                    <input type="number" step="any" onkeyup="validateTotalInputs()" id="TransformerRentalFees" name="TransformerRentalFees" class="form-control form-control-sm text-right" autofocus>
+                    <input type="number" step="any" value="{{ $paymentOrder->TransformerRentalFees }}" onkeyup="validateTotalInputs()" id="TransformerRentalFees" name="TransformerRentalFees" class="form-control form-control-sm text-right" autofocus>
                  </td>
               </tr>
               <tr>
                  <td>Apprehension</td>
                  <td>
-                    <input type="number" step="any" onkeyup="validateTotalInputs()" id="Apprehension" name="Apprehension" class="form-control form-control-sm text-right" autofocus>
+                    <input type="number" step="any" value="{{ $paymentOrder->Apprehension }}" onkeyup="validateTotalInputs()" id="Apprehension" name="Apprehension" class="form-control form-control-sm text-right" autofocus>
                  </td>
               </tr>
               <tr>
                  <td>Customer Deposit</td>
                  <td>
-                    <input type="number" step="any" onkeyup="validateTotalInputs()" id="CustomerDeposit" name="CustomerDeposit" class="form-control form-control-sm text-right" autofocus>
+                    <input type="number" step="any" value="{{ $paymentOrder->CustomerDeposit }}" onkeyup="validateTotalInputs()" id="CustomerDeposit" name="CustomerDeposit" class="form-control form-control-sm text-right" autofocus>
                  </td>
               </tr>
               <tr>
                  <td>CIAC</td>
                  <td>
-                    <input type="number" step="any" onkeyup="validateTotalInputs()" id="CIAC" name="CIAC" class="form-control form-control-sm text-right" autofocus>
+                    <input type="number" step="any" value="{{ $paymentOrder->CIAC }}" onkeyup="validateTotalInputs()" id="CIAC" name="CIAC" class="form-control form-control-sm text-right" autofocus>
                  </td>
               </tr>
               <tr>
                  <td>Service Fee</td>
                  <td>
-                    <input type="number" step="any" onkeyup="validateTotalInputs()" id="ServiceFee" name="ServiceFee" class="form-control form-control-sm text-right" autofocus>
+                    <input type="number" step="any" value="{{ $paymentOrder->ServiceFee }}" onkeyup="validateTotalInputs()" id="ServiceFee" name="ServiceFee" class="form-control form-control-sm text-right" autofocus>
                  </td>
               </tr>
            </table>
@@ -228,13 +243,13 @@
               <tr>
                  <td>Others</td>
                  <td>
-                    <input type="number" step="any" id="Others" name="Others" class="form-control form-control-sm text-right" autofocus>
+                    <input type="number" step="any" value="{{ $paymentOrder->Others }}" id="Others" name="Others" class="form-control form-control-sm text-right" autofocus>
                  </td>
               </tr>
               <tr>
                <td>Materials Total</td>
                <td>
-                  <input type="number" step="any" onchange="validateTotalInputs()" onkeyup="validateTotalInputs()" id="MaterialsTotal" name="MaterialsTotal" class="form-control form-control-sm text-right" autofocus>
+                  <input type="number" step="any" value="{{ $paymentOrder->MaterialTotal }}" onchange="validateTotalInputs()" onkeyup="validateTotalInputs()" id="MaterialsTotal" name="MaterialsTotal" class="form-control form-control-sm text-right" autofocus>
                </td>
             </tr>
            </table>
@@ -245,31 +260,31 @@
               <tr>
                  <th>Local F. Tax</th>
                  <th>
-                    <input type="number" step="any" id="LocalFTax" name="LocalFTax" class="form-control form-control-sm text-right" autofocus>
+                    <input type="number" step="any" value="{{ $paymentOrder->LocalFTax }}" id="LocalFTax" name="LocalFTax" class="form-control form-control-sm text-right" autofocus>
                  </th>
               </tr>
               <tr>
                  <th>Sub-total w/o VAT</th>
                  <th>
-                    <input type="number" step="any" id="SubTotal" name="SubTotal" class="form-control form-control-sm text-right" autofocus>
+                    <input type="number" step="any" value="{{ $paymentOrder->SubTotal }}" id="SubTotal" name="SubTotal" class="form-control form-control-sm text-right" autofocus>
                  </th>
               </tr>
               <tr>
                  <th>VAT</th>
                  <th>
-                    <input type="number" step="any" id="VAT" name="VAT" class="form-control form-control-sm text-right" autofocus>
+                    <input type="number" step="any" value="{{ $paymentOrder->VAT }}" id="VAT" name="VAT" class="form-control form-control-sm text-right" autofocus>
                  </th>
               </tr>
               <tr>
                  <th>Others</th>
                  <th>
-                    <input type="number" step="any" onkeyup="validateTotalInputs()" id="OthersTotal" name="OthersTotal" class="form-control form-control-sm text-right" autofocus>
+                    <input type="number" step="any" value="{{ $paymentOrder->OthersTotal }}" onkeyup="validateTotalInputs()" id="OthersTotal" name="OthersTotal" class="form-control form-control-sm text-right" autofocus>
                  </th>
               </tr>
               <tr>
                  <th><h4>TOTAL</h4></th>
                  <th>
-                    <input type="number" step="any" style="font-size: 1.3em;" id="OverAllTotal" name="OverAllTotal" class="form-control form-control-sm text-right" autofocus>
+                    <input type="number" step="any" value="{{ $paymentOrder->OverAllTotal }}" style="font-size: 1.3em;" id="OverAllTotal" name="OverAllTotal" class="form-control form-control-sm text-right" autofocus>
                  </th>
               </tr>
            </table>
@@ -278,7 +293,7 @@
   </div>
 
    <div class="col-lg-12" style="margin-bottom: 15px;">
-      <button class="btn btn-primary float-right" onclick="savePaymentOrder()"><i class="fas fa-dollar-sign ico-tab"></i>Save Payment Order</button>
+      <button class="btn btn-danger float-right" onclick="savePaymentOrder()"><i class="fas fa-dollar-sign ico-tab"></i>Update Payment Order</button>
       <div id="loader" class="spinner-border text-danger float-right gone" style="margin-right: 10px;" role="status">
          <span class="sr-only">Loading...</span>
      </div>
@@ -359,7 +374,9 @@
                   "<td class='text-right'>" + Math.round((parseFloat(uprice) + Number.EPSILON) * 100) / 100 + "</td>" +
                   "<td class='text-right text-primary'>" +
                      "<strong>" + tcost + "</strong>" + 
-                     "<button onclick='removeItem(`" + id + "`)' class='btn btn-xs btn-link text-danger' style='margin-left: 10px;'><i class='fas fa-trash'></i></button>" +
+                  "</td>" +
+                  "<td>" + 
+                     "<button onclick='removeItem(`" + id + "`, `NEW`)' class='btn btn-xs btn-link text-danger' style='margin-left: 10px;'><i class='fas fa-trash'></i></button>" +
                   "</td>" +
                "<tr>"
       }
@@ -403,7 +420,7 @@
                   ItemQuantity : $('td', this).eq(3).text(),
                   ItemUOM : $('td', this).eq(4).text(),
                   ItemUnitPrice : $('td', this).eq(5).text(),
-                  ItemTotalCost : $('td', this).eq(6).text(),
+                  ItemTotalCost : $('td', this).eq(6).text().trim(),
                   ItemNo : (index + 1),
                })
             }            
@@ -430,7 +447,7 @@
             return 0
          } else {
             amount = parseFloat(amount)
-            return amount
+            return Math.round((parseFloat(amount) + Number.EPSILON) * 100) / 100
          }
       }
 
@@ -479,7 +496,7 @@
          var subTotal = getInputAmount($('#SubTotal').val())
          var vat = getInputAmount($('#VAT').val())
 
-         return fTax + subTotal + vat
+         return Math.round((parseFloat(fTax + subTotal + vat) + Number.EPSILON) * 100) / 100
       }
 
       function validateTotalInputs() {
@@ -546,7 +563,7 @@
          })
       }
 
-      function removeItem(id) {
+      function removeItem(id, status) {
          Swal.fire({
             title: 'Do you want to delete this item?',
             showDenyButton: true,
@@ -555,15 +572,43 @@
          }).then((result) => {
             /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
-               $('#' + id).remove()
-               $('#MaterialsTotal').val(getItemTotal())
-               $('#MaterialsTotal').change()
-               validateTotalInputs()
-               clearSelection()
-               Toast.fire({
-                  icon : 'success',
-                  text : 'item removed!'
-               })
+               if (status == 'OLD') {
+                  $.ajax({
+                     url : "{{ route('warehouseItems.remove-item') }}",
+                     type : "GET",
+                     data : {
+                        id : id,
+                     },
+                     success : function(res) {
+                        $('#' + id).remove()
+                        $('#MaterialsTotal').val(getItemTotal())
+                        $('#MaterialsTotal').change()
+                        validateTotalInputs()
+                        clearSelection()
+                        Toast.fire({
+                           icon : 'success',
+                           text : 'item removed!'
+                        })
+                     },
+                     error : function(err) {
+                        console.log(err)
+                        Toast.fire({
+                           icon : 'error',
+                           text : 'error removing item!'
+                        })
+                     }
+                  })
+               } else {
+                  $('#' + id).remove()
+                  $('#MaterialsTotal').val(getItemTotal())
+                  $('#MaterialsTotal').change()
+                  validateTotalInputs()
+                  clearSelection()
+                  Toast.fire({
+                     icon : 'success',
+                     text : 'item removed!'
+                  })
+               }               
             }
          })
          

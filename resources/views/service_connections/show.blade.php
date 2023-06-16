@@ -12,30 +12,27 @@ use Illuminate\Support\Facades\Auth;
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-6">
+                    <span class="badge-md bg-warning"><strong>{{ $serviceConnections->Status }}</strong></span>
                     {{-- @if (empty($timeFrame) | $timeFrame == null)
                         <span><i>Timeframe not recorded</i></span>
                     @else
                         <span class="badge-lg bg-warning"><strong>{{ $timeFrame->first()==null ? 'Timeframe not recorded' : $timeFrame->first()->Status; }}</strong></span>
                     @endif --}}
-                    
-                    <span class="badge-md bg-warning"><strong>{{ $serviceConnections->Status }}</strong></span>
-                    @if (Auth::user()->hasAnyRole(['Administrator'])) 
-                        <button id="override" class="btn btn-danger btn-sm float-right" style="margin-left: 10px;">Override Status</button>
-                        <select name="Status" id="Status" class="form-control form-control-sm float-right" style="width: 200px;">
-                            <option {{ $serviceConnections->Status=="Approved" ? 'selected' : '' }} value="Approved">Approved</option>
-                            <option {{ $serviceConnections->Status=="Approved For Change Name" ? 'selected' : '' }} value="Approved For Change Name">Approved For Change Name</option>
-                            <option {{ $serviceConnections->Status=="Closed" ? 'selected' : '' }} value="Closed">Closed</option>
-                            <option {{ $serviceConnections->Status=="Downloaded by Crew" ? 'selected' : '' }} value="Downloaded by Crew">Downloaded by Crew</option>
-                            <option {{ $serviceConnections->Status=="Energized" ? 'selected' : '' }} value="Energized">Energized</option>
-                            <option {{ $serviceConnections->Status=="For Inspection" ? 'selected' : '' }} value="For Inspection">For Inspection</option>
-                            <option {{ $serviceConnections->Status=="Forwarded To Planning" ? 'selected' : '' }} value="Forwarded To Planning">Forwarded To Planning</option>
-                        </select>
-                    @endif
                 </div> 
                 <div class="col-sm-6">
+                    {{-- DELETE --}}
                     {!! Form::open(['route' => ['serviceConnections.destroy', $serviceConnections->id], 'method' => 'delete']) !!}
                         {!! Form::button('<i class="fas fa-trash"></i>', ['type' => 'submit', 'title' => 'Delete this application', 'class' => 'btn btn-sm btn-link text-danger float-right', 'onclick' => "return confirm('Are you sure you want to delete this?')"]) !!}
                     {!! Form::close() !!}
+                    {{-- PAYMENT ORDER --}}
+                    @if($paymentOrder == null)
+                        <a href="{{ route('serviceConnections.payment-order', [$serviceConnections->id]) }}" class="btn btn-sm btn-link text-success float-right" title="Create Payment Order">
+                            <i class="fas fa-file-invoice-dollar"></i></a>
+                    @else
+                        <a href="{{ route('serviceConnections.update-payment-order', [$serviceConnections->id]) }}" class="btn btn-sm btn-link text-success float-right" title="Edit Payment Order">
+                            <i class="fas fa-file-invoice-dollar"></i></a>
+                    @endif
+                    {{-- EDIT --}}
                     <a href="{{ route('serviceConnections.edit', [$serviceConnections->id]) }}" title="Update Application Details" class="btn btn-sm btn-link text-warning float-right"><i class="fas fa-pen"></i></a>
                 </div>
             </div>
@@ -57,6 +54,20 @@ use Illuminate\Support\Facades\Auth;
                             <div class="col-lg-6">
                                 <p class="p-x0"><span class="text-muted">Contact No:  </span> <span style="margin-left: 20px;">{{ $serviceConnections->ContactNumber }}</span></p>
                                 <p class="p-x0"><span class="text-muted">Email Add.:  </span> <span style="margin-left: 20px;">{{ $serviceConnections->EmailAddress }}</span></p>
+                                <p class="px-0">
+                                    @if (Auth::user()->hasAnyRole(['Administrator'])) 
+                                        <button id="override" class="btn btn-danger btn-sm float-right" style="margin-left: 10px;">Override Status</button>
+                                        <select name="Status" id="Status" class="form-control form-control-sm float-right" style="width: 200px;">
+                                            <option {{ $serviceConnections->Status=="Approved" ? 'selected' : '' }} value="Approved">Approved</option>
+                                            <option {{ $serviceConnections->Status=="Approved For Change Name" ? 'selected' : '' }} value="Approved For Change Name">Approved For Change Name</option>
+                                            <option {{ $serviceConnections->Status=="Closed" ? 'selected' : '' }} value="Closed">Closed</option>
+                                            <option {{ $serviceConnections->Status=="Downloaded by Crew" ? 'selected' : '' }} value="Downloaded by Crew">Downloaded by Crew</option>
+                                            <option {{ $serviceConnections->Status=="Energized" ? 'selected' : '' }} value="Energized">Energized</option>
+                                            <option {{ $serviceConnections->Status=="For Inspection" ? 'selected' : '' }} value="For Inspection">For Inspection</option>
+                                            <option {{ $serviceConnections->Status=="Forwarded To Planning" ? 'selected' : '' }} value="Forwarded To Planning">Forwarded To Planning</option>
+                                        </select>
+                                    @endif
+                                </p>
                             </div>
                         </div>                        
                     </div>
@@ -71,13 +82,13 @@ use Illuminate\Support\Facades\Auth;
                             <li class="nav-item"><a class="nav-link" href="#details" data-toggle="tab">
                                 <i class="fas fa-info-circle"></i>
                                 Application Basic Details</a></li>
-                            <li class="nav-item"><a class="nav-link active" href="#verification" data-toggle="tab">
+                            <li class="nav-item"><a class="nav-link" href="#verification" data-toggle="tab">
                                 <i class="fas fa-clipboard-check"></i>
                                 Verification</a></li>
                             <li class="nav-item"><a class="nav-link" href="#metering" data-toggle="tab">
                                 <i class="fas fa-tachometer-alt"></i>
                                 Metering and Transformer</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#invoice" data-toggle="tab">
+                            <li class="nav-item"><a class="nav-link active" href="#invoice" data-toggle="tab">
                                 <i class="fas fa-file-invoice-dollar"></i>
                                 Payment Order</a></li>
                             {{-- @if ($serviceConnections->LoadCategory == 'above 5kVa' | $serviceConnections->LongSpan == 'Yes')
@@ -96,7 +107,7 @@ use Illuminate\Support\Facades\Auth;
                                 @include('service_connections.tab_details')
                             </div>
 
-                            <div class="tab-pane active" id="verification">
+                            <div class="tab-pane" id="verification">
                                 @include('service_connections.tab_verification')
                             </div>
 
@@ -104,7 +115,7 @@ use Illuminate\Support\Facades\Auth;
                                 @include('service_connections.tab_metering')
                             </div>
 
-                            <div class="tab-pane" id="invoice">
+                            <div class="tab-pane active" id="invoice">
                                 @include('service_connections.tab_invoice')
                             </div>
                             

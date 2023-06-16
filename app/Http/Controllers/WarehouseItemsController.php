@@ -9,6 +9,7 @@ use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Models\WarehouseItems;
 use Flash;
 use Response;
 
@@ -198,5 +199,16 @@ class WarehouseItemsController extends AppBaseController
         }
 
         return response()->json($output, 200);
+    }
+
+    public function removeItem(Request $request) {
+        $id = $request['id'];
+
+        $item = WarehouseItems::find($id);
+        if ($item->id != null) {
+            $item->delete();
+        }
+
+        return response()->json('ok', 200);
     }
 }

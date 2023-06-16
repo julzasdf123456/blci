@@ -148,6 +148,7 @@ Route::get('/service_connections/sevice-connections-report', [ServiceConnections
 Route::get('/service_connections/print-sevice-connections-report/{town}/{from}/{to}', [ServiceConnectionsController::class, 'printServiceConnectionsReport'])->name('serviceConnections.print-sevice-connections-report');
 Route::get('/service_connections/payment-order/{scid}', [ServiceConnectionsController::class, 'paymentOrder'])->name('serviceConnections.payment-order');
 Route::post('/service_connections/save-payment-order', [ServiceConnectionsController::class, 'savePaymentOrder'])->name('serviceConnections.save-payment-order');
+Route::get('/service_connections/update-payment-order/{scid}', [ServiceConnectionsController::class, 'updatePaymentOrder'])->name('serviceConnections.update-payment-order');
 Route::resource('serviceConnections', App\Http\Controllers\ServiceConnectionsController::class);
 
 
@@ -879,6 +880,7 @@ Route::resource('itemsCosts', App\Http\Controllers\ItemsCostController::class);
 Route::resource('warehouseHeads', App\Http\Controllers\WarehouseHeadController::class);
 
 Route::get('/warehouse_items/get-searched-materials', [App\Http\Controllers\WarehouseItemsController::class, 'getSearchedMaterials'])->name('warehouseItems.get-searched-materials');
+Route::get('/warehouse_items/remove-item', [App\Http\Controllers\WarehouseItemsController::class, 'removeItem'])->name('warehouseItems.remove-item');
 Route::resource('warehouseItems', App\Http\Controllers\WarehouseItemsController::class);
 
 

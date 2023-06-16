@@ -43,6 +43,7 @@ use App\Models\MemberConsumerTypes;
 use App\Models\Signatories;
 use App\Models\WarehouseHead;
 use App\Models\WarehouseItems;
+use App\Models\PaymentOrder;
 use App\Exports\ServiceConnectionApplicationsReportExport;
 use App\Exports\ServiceConnectionEnergizationReportExport;
 use App\Exports\DynamicExportsNoBillingMonth;
@@ -337,31 +338,6 @@ class ServiceConnectionsController extends AppBaseController
         
         $serviceConnectionMeter = ServiceConnectionMtrTrnsfrmr::where('ServiceConnectionId', $id)->first();
 
-        $serviceConnectionTransactions = ServiceConnectionPayTransaction::where('ServiceConnectionId', $id)->first();
-
-        $materialPayments = DB::table('CRM_ServiceConnectionMaterialPayments')
-                    ->leftJoin('CRM_ServiceConnectionMaterialPayables', 'CRM_ServiceConnectionMaterialPayments.Material', '=', 'CRM_ServiceConnectionMaterialPayables.id')
-                    ->select('CRM_ServiceConnectionMaterialPayments.id',
-                            'CRM_ServiceConnectionMaterialPayments.Quantity',
-                            'CRM_ServiceConnectionMaterialPayments.Vat',
-                            'CRM_ServiceConnectionMaterialPayments.Total',
-                            'CRM_ServiceConnectionMaterialPayables.Material',
-                            'CRM_ServiceConnectionMaterialPayables.Rate',)
-                    ->where('CRM_ServiceConnectionMaterialPayments.ServiceConnectionId', $id)
-                    ->get();
-
-        $particularPayments = DB::table('CRM_ServiceConnectionParticularPaymentsTransactions')
-                    ->leftJoin('CRM_ServiceConnectionPaymentParticulars', 'CRM_ServiceConnectionParticularPaymentsTransactions.Particular', '=', 'CRM_ServiceConnectionPaymentParticulars.id')
-                    ->select('CRM_ServiceConnectionParticularPaymentsTransactions.id',
-                            'CRM_ServiceConnectionParticularPaymentsTransactions.Amount',
-                            'CRM_ServiceConnectionParticularPaymentsTransactions.Vat',
-                            'CRM_ServiceConnectionParticularPaymentsTransactions.Total',
-                            'CRM_ServiceConnectionPaymentParticulars.Particular')
-                    ->where('CRM_ServiceConnectionParticularPaymentsTransactions.ServiceConnectionId', $id)
-                    ->get();
-
-        $totalTransactions = ServiceConnectionTotalPayments::where('ServiceConnectionId', $id)->first();
-
         $timeFrame = DB::table('CRM_ServiceConnectionTimeframes')
                 ->leftJoin('users', 'CRM_ServiceConnectionTimeframes.UserId', '=', 'users.id')
                 ->select('CRM_ServiceConnectionTimeframes.id',
@@ -375,63 +351,29 @@ class ServiceConnectionsController extends AppBaseController
                 ->orderByDesc('created_at')
                 ->get();
 
-        $billOfMaterialsSummary = BillsOfMaterialsSummary::where('ServiceConnectionId', $id)->first();
-
-        $structures = DB::table('CRM_StructureAssignments')
-            ->leftJoin('CRM_Structures', 'CRM_StructureAssignments.StructureId', '=', 'CRM_Structures.Data')
-            ->select('CRM_Structures.id as id',
-                    'CRM_StructureAssignments.StructureId',
-                    DB::raw('SUM(CAST(CRM_StructureAssignments.Quantity AS Integer)) AS Quantity'))
-            ->where('ServiceConnectionId', $id)
-            ->groupBy('CRM_Structures.id', 'CRM_StructureAssignments.StructureId')
-            ->get();
-
-        $conAss = DB::table('CRM_StructureAssignments')
-            ->where('ServiceConnectionId', $id)
-            ->select('ConAssGrouping', 'StructureId', 'Quantity', 'Type')
-            ->groupBy('StructureId', 'ConAssGrouping', 'Quantity', 'Type')
-            ->orderBy('ConAssGrouping')
-            ->get();
-
-        $materials = DB::table('CRM_BillOfMaterialsMatrix')
-            ->leftJoin('CRM_MaterialAssets', 'CRM_BillOfMaterialsMatrix.MaterialsId', '=', 'CRM_MaterialAssets.id')   
-            ->select('CRM_MaterialAssets.id',
-                    'CRM_MaterialAssets.Description',
-                    'CRM_BillOfMaterialsMatrix.Amount',
-                    DB::raw('SUM(CAST(CRM_BillOfMaterialsMatrix.Quantity AS Integer)) AS ProjectRequirements'),
-                    DB::raw('(CAST(CRM_BillOfMaterialsMatrix.Amount As Money) * SUM(CAST(CRM_BillOfMaterialsMatrix.Quantity AS Integer))) AS Cost'))
-            ->where('CRM_BillOfMaterialsMatrix.ServiceConnectionId', $id)
-            // ->where('CRM_BillOfMaterialsMatrix.StructureType', 'A_DT')
-            ->groupBy('CRM_MaterialAssets.Description', 'CRM_BillOfMaterialsMatrix.Amount', 'CRM_MaterialAssets.id')
-            ->orderBy('CRM_MaterialAssets.Description')
-            ->get();
         
-        $poles = DB::table('CRM_BillOfMaterialsMatrix')
-                ->leftJoin('CRM_MaterialAssets', 'CRM_BillOfMaterialsMatrix.MaterialsId', '=', 'CRM_MaterialAssets.id')   
-                ->select('CRM_MaterialAssets.id',
-                        'CRM_MaterialAssets.Description',
-                        DB::raw('SUM(CAST(CRM_BillOfMaterialsMatrix.Quantity AS Integer)) AS ProjectRequirements'),)
-                ->where('CRM_BillOfMaterialsMatrix.ServiceConnectionId', $id)
-                ->where('CRM_BillOfMaterialsMatrix.StructureType', 'POLE')
-                ->groupBy('CRM_MaterialAssets.Description', 'CRM_MaterialAssets.id')
-                ->orderBy('CRM_MaterialAssets.Description')
-                ->get();
-
-        $transformers = DB::table('CRM_TransformersAssignedMatrix')
-                ->leftJoin('CRM_MaterialAssets', 'CRM_TransformersAssignedMatrix.MaterialsId', '=', 'CRM_MaterialAssets.id')
-                ->select('CRM_MaterialAssets.id',
-                        'CRM_TransformersAssignedMatrix.id as TransformerId',
-                        'CRM_MaterialAssets.Description',
-                        'CRM_MaterialAssets.Amount',
-                        'CRM_TransformersAssignedMatrix.Quantity',
-                        'CRM_TransformersAssignedMatrix.Type')
-                ->where('CRM_TransformersAssignedMatrix.ServiceConnectionId', $id)
-                ->get();
-
         if (empty($serviceConnections)) {
             Flash::error('Service Connections not found');
 
             return redirect(route('serviceConnections.index'));
+        }
+
+        $paymentOrder = PaymentOrder::where('ServiceConnectionId', $id)->first();
+
+        $whHead = WarehouseHead::where('appl_no', $id)->first();
+        if ($whHead != null) {
+            $whItems = DB::connection('mysql')
+                ->table('tblor_line')
+                ->leftJoin('tblitems', 'tblor_line.itemcd', '=', 'tblitems.itm_code')
+                ->whereRaw("reqno='" . $whHead->orderno . "'")
+                ->select(
+                    'tblor_line.*', 
+                    'tblitems.itm_desc'
+                    )
+                ->orderBy('itemno')
+                ->get();
+        } else {
+            $whItems = [];
         }
 
         $serviceConnectionChecklistsRep = ServiceConnectionChecklistsRep::all();
@@ -447,20 +389,14 @@ class ServiceConnectionsController extends AppBaseController
             return view('service_connections.show', ['serviceConnections' => $serviceConnections, 
                                                 'serviceConnectionInspections' => $serviceConnectionInspections, 
                                                 'serviceConnectionMeter' => $serviceConnectionMeter, 
-                                                'serviceConnectionTransactions' => $serviceConnectionTransactions,
-                                                'materialPayments' => $materialPayments,
-                                                'particularPayments' => $particularPayments,
-                                                'totalTransactions' => $totalTransactions,
                                                 'timeFrame' => $timeFrame,
                                                 'serviceConnectionChecklistsRep' => $serviceConnectionChecklistsRep,
                                                 'serviceConnectionChecklists' => $serviceConnectionChecklists,
-                                                'billOfMaterialsSummary' => $billOfMaterialsSummary,
-                                                'structures' => $structures,
-                                                'conAss' => $conAss,
-                                                'materials' => $materials,
-                                                'poles' => $poles,
                                                 'images' => $images,
-                                                'transformers' => $transformers]);
+                                                'paymentOrder' => $paymentOrder,
+                                                'whHead' => $whHead,
+                                                'whItems' => $whItems,
+                                            ]);
         } else {
             return abort(403, "You're not authorized to view a service connection application.");
         }        
@@ -3677,7 +3613,7 @@ class ServiceConnectionsController extends AppBaseController
         if ($whHead != null) {
             $whItems = DB::connection('mysql')
                 ->table('tblor_line')
-                ->whereRaw("req_no='" . $whHead->orderno . "'")
+                ->whereRaw("reqno='" . $whHead->orderno . "'")
                 ->select('*')
                 ->get();
         } else {
@@ -3699,7 +3635,98 @@ class ServiceConnectionsController extends AppBaseController
 
     public function savePaymentOrder(Request $request) {
         $materialItems = $request['MaterialItems'];
+        $ServiceConnectionId = $request['ServiceConnectionId'];
+        $MaterialDeposit = $request['MaterialDeposit'];
+        $TransformerRentalFees = $request['TransformerRentalFees'];
+        $Apprehension = $request['Apprehension'];
+        $OverheadExpenses = $request['OverheadExpenses'];
+        $CIAC = $request['CIAC'];
+        $ServiceFee = $request['ServiceFee'];
+        $CustomerDeposit = $request['CustomerDeposit'];
+        $Others = $request['Others'];
+        $LocalFTax = $request['LocalFTax'];
+        $SubTotal = $request['SubTotal'];
+        $VAT = $request['VAT'];
+        $OthersTotal = $request['OthersTotal'];
+        $OverAllTotal = $request['OverAllTotal'];
+        $ORNumber = $request['ORNumber'];
+        $MaterialTotal = $request['MaterialTotal'];
+        $reqNo = $request['ReqNo'];
+        $mirsNo = $request['MIRSNo'];
+        $CostCenter = $request['CostCenter'];
+        $chargeTo = $request['ChargeTo'];
+        $projectCode = $request['ProjectCode'];
+        $requestedBy = $request['RequestedBy'];
+        $invoiceNo = $request['InvoiceNo'];
+        $customerName = $request['CustomerName'];
+        $typeOfServiceId = $request['TypeOfServiceId'];
+        $entryNo = $request['EntryNo'];
+
         $materialItems = json_decode(stripslashes($materialItems));
+
+        // CHECK FIRST IF PAYMENT ORDER EXIST
+        $paymentOrder = PaymentOrder::where('ServiceConnectionId', $ServiceConnectionId)->first();
+        if ($paymentOrder != null) {
+            $paymentOrder->delete();
+        } 
+
+        $paymentOrder = new PaymentOrder;
+        $paymentOrder->id = IDGenerator::generateID();
+        $paymentOrder->ServiceConnectionId = $ServiceConnectionId;
+        $paymentOrder->MaterialDeposit = $MaterialDeposit;
+        $paymentOrder->TransformerRentalFees = $TransformerRentalFees;
+        $paymentOrder->Apprehension = $Apprehension;
+        $paymentOrder->OverheadExpenses = $OverheadExpenses;
+        $paymentOrder->CIAC = $CIAC;
+        $paymentOrder->ServiceFee = $ServiceFee;
+        $paymentOrder->CustomerDeposit = $CustomerDeposit;
+        $paymentOrder->Others = $Others;
+        $paymentOrder->LocalFTax = $LocalFTax;
+        $paymentOrder->SubTotal = $SubTotal;
+        $paymentOrder->VAT = $VAT;
+        $paymentOrder->OthersTotal = $OthersTotal;
+        $paymentOrder->OverAllTotal = $OverAllTotal;
+        $paymentOrder->ORNumber = $ORNumber;
+        $paymentOrder->ORDate = date('Y-m-d');
+        $paymentOrder->MaterialTotal = $MaterialTotal;
+        $paymentOrder->save();
+
+        // DELETE WAREHOUSE HEAD
+        $whHead = WarehouseHead::where('appl_no', $ServiceConnectionId)->first();
+
+        if ($whHead != null) {
+            $whHead->delete();
+
+            // DELETE MATERIAL ITEMS FIRST
+            $whItems = WarehouseItems::where('reqno', $whHead->orderno)->delete();
+        }
+
+        // SAVE WAREHOUSE HEAD
+        $whHead = new WarehouseHead;
+        $whHead->orderno = $reqNo;
+        $whHead->ent_no = 0;
+        $whHead->misno = $mirsNo;
+        $whHead->tdate = date('m/d/Y');
+        $whHead->emp_id = Auth::id();
+        $whHead->ccode = $CostCenter;
+        $whHead->dept = $chargeTo;
+        $whHead->pcode = $projectCode;
+        $whHead->reqby = $requestedBy;
+        $whHead->invoice = $invoiceNo;
+        $whHead->orno = $ORNumber;
+        $whHead->purpose = 'FOR ' . strtoupper($customerName);
+        $whHead->serv_code = $typeOfServiceId;
+        $whHead->account_no = $ServiceConnectionId;
+        $whHead->cust_name = $customerName;
+        $whHead->tot_amt = $MaterialTotal;
+        $whHead->chkby = $requestedBy;
+        $whHead->stat = 'Checked';
+        $whHead->rdate = date('m/d/Y');
+        $whHead->rtime = date('h:i A');
+        $whHead->walk_in = 0;
+        $whHead->appl_no = $ServiceConnectionId;
+        $whHead->appby = ' ';
+        $whHead->save();
 
         foreach($materialItems as $item) {
             $whItems = new WarehouseItems;
@@ -3720,4 +3747,41 @@ class ServiceConnectionsController extends AppBaseController
         return response()->json('ok', 200);
     }
 
+    public function updatePaymentOrder($scId) {
+        $whHead = DB::connection('mysql')
+            ->table('tblor_head')
+            ->whereRaw("appl_no='" . $scId . "'")
+            ->select('*')
+            ->first();
+
+        if ($whHead != null) {
+            $whItems = DB::connection('mysql')
+                ->table('tblor_line')
+                ->leftJoin('tblitems', 'tblor_line.itemcd', '=', 'tblitems.itm_code')
+                ->whereRaw("reqno='" . $whHead->orderno . "'")
+                ->select(
+                    'tblor_line.*', 
+                    'tblitems.itm_desc'
+                    )
+                ->orderBy('itemno')
+                ->get();
+        } else {
+            $whItems = [];
+        }     
+        
+        $serviceConnection = DB::connection('sqlsrv')
+            ->table('CRM_ServiceConnections')
+            ->whereRaw("id='" . $scId . "'")
+            ->select('*')
+            ->first();
+
+        $paymentOrder = PaymentOrder::where("ServiceConnectionId", $scId)->first();
+
+        return view('/service_connections/update_payment_order', [
+            'whHead' => $whHead,
+            'whItems' => $whItems,
+            'serviceConnection' => $serviceConnection,
+            'paymentOrder' => $paymentOrder,
+        ]);
+    }
 }
