@@ -35,6 +35,7 @@ class ServiceConnectionInspectionsAPI extends Controller {
                     ->orWhereNull('CRM_ServiceConnections.Trash');
             })
             ->where('CRM_ServiceConnectionInspections.Inspector', $request['userid'])
+            ->whereRaw("(InspectionSchedule <= '" . date('Y-m-d') . "' OR ReInspectionSchedule <= '" . date('Y-m-d') . "')")
             ->get(); 
 
         if ($serviceConnections == null) {
@@ -62,6 +63,7 @@ class ServiceConnectionInspectionsAPI extends Controller {
                     ->orWhereNull('CRM_ServiceConnections.Trash');
             })
             ->where('CRM_ServiceConnectionInspections.Inspector', $request['userid'])
+            ->whereRaw("(InspectionSchedule <= '" . date('Y-m-d') . "' OR ReInspectionSchedule <= '" . date('Y-m-d') . "')")
             ->get(); 
 
         if ($serviceConnections == null) {
@@ -104,6 +106,11 @@ class ServiceConnectionInspectionsAPI extends Controller {
         $serviceConnectionInspections->Inspector = $request['Inspector'];
 
         $serviceConnections->Status = $request['Status'];
+        $serviceConnections->Zone = $request['Zone'];
+        $serviceConnections->Block = $request['Block'];
+        $serviceConnections->Feeder = $request['Feeder'];
+        $serviceConnections->LoadType = $request['LoadType'];
+        $serviceConnections->PoleNumber = $request['PoleNo'];
         
         $serviceConnectionInspections->LightingOutlets = $request['LightingOutlets'];
         $serviceConnectionInspections->ConvenienceOutlets = $request['ConvenienceOutlets'];

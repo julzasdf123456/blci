@@ -57,7 +57,7 @@
                         </td>
                         <td>OR No : </td>
                         <td>
-                            <input type="text" id="ORNo" value="{{ $whHead->orno }}" class="form-control form-control-xs">
+                            <input type="text" id="ORNo" value="{{ $paymentOrder->ORNumber }}" class="form-control form-control-xs">
                         </td>
                     </tr>
                     <tr>
@@ -198,7 +198,7 @@
 
     {{-- OVERALL TOTAL --}}
     <div class="col-lg-6">
-        <div class="card card-danger">
+        <div class="card {{ $serviceConnections->ORNumber != null ? 'card-success' : 'card-danger' }}">
             <div class="card-header">
                <span class="card-title">Summary</span>
             </div>
@@ -218,9 +218,23 @@
                   </tr>
                   <tr>
                      <th><h4>OVERALL TOTAL</h4></th>
-                     <th><h2 class="text-right text-danger">P {{ is_numeric($paymentOrder->OverAllTotal) ? number_format($paymentOrder->OverAllTotal, 2) : $paymentOrder->OverAllTotal }}</h2></th>
+                     <th><h2 class="text-right  {{ $serviceConnections->ORNumber != null ? 'text-success' : 'text-danger' }}">P {{ is_numeric($paymentOrder->OverAllTotal) ? number_format($paymentOrder->OverAllTotal, 2) : $paymentOrder->OverAllTotal }}</h2></th>
                   </tr>
                </table>
+
+               @if ($serviceConnections->ORNumber != null)
+                    <div class="divider"></div>
+                    <table class="table table-hover table-borderless table-sm">
+                        <tr>
+                            <td>OR Number: </td>
+                            <td class="text-right"><strong>{{ $serviceConnections->ORNumber }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Payment Date: </td>
+                            <td class="text-right"><strong>{{ $serviceConnections->ORDate != null ? date('F d, Y', strtotime($serviceConnections->ORDate)) : '-' }}</strong></td>
+                        </tr>
+                    </table>
+               @endif
             </div>
         </div>
     </div>

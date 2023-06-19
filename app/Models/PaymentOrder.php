@@ -98,7 +98,8 @@ class PaymentOrder extends Model
         'ORNumber',
         'ORDate',
         'Notes',
-        'MaterialTotal'
+        'MaterialTotal',
+        'AmountPaid',
     ];
 
     /**
@@ -126,7 +127,8 @@ class PaymentOrder extends Model
         'ORNumber' => 'string',
         'ORDate' => 'date',
         'Notes' => 'string',
-        'MaterialTotal' => 'string'
+        'MaterialTotal' => 'string',
+        'AmountPaid' => 'string',
     ];
 
     /**
@@ -158,7 +160,8 @@ class PaymentOrder extends Model
         'Notes' => 'nullable|string|max:2000',
         'created_at' => 'nullable',
         'updated_at' => 'nullable',
-        'MaterialTotal' => 'nullable|string'
+        'MaterialTotal' => 'nullable|string',
+        'AmountPaid' => 'nullable|string',
     ];
 
     

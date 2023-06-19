@@ -90,11 +90,12 @@ class ServiceConnections extends Model
         'CertificateOfConnectionIssuedOn',
         'LoadType',
         'LoadInKva',
-        'ZoneAndBlock',
+        'Zone',
         'TransformerID',
         'PoleNumber',
         'Feeder',
         'ChargeTo',
+        'Block',
     ];
 
     /**
@@ -144,11 +145,12 @@ class ServiceConnections extends Model
         'CertificateOfConnectionIssuedOn' => 'string',
         'LoadType' => 'string',
         'LoadInKva' => 'string',
-        'ZoneAndBlock' => 'string',
+        'Zone' => 'string',
         'TransformerID' => 'string',
         'PoleNumber' => 'string',
         'Feeder' => 'string',
         'ChargeTo' => 'string',
+        'Block' => 'string',
     ];
 
     /**
@@ -200,11 +202,12 @@ class ServiceConnections extends Model
         'CertificateOfConnectionIssuedOn' => 'nullable|string',
         'LoadType' => 'nullable|string',
         'LoadInKva' => 'nullable|string',
-        'ZoneAndBlock' => 'nullable|string',
+        'Zone' => 'nullable|string',
         'TransformerID' => 'nullable|string',
         'PoleNumber' => 'nullable|string',
         'Feeder' => 'nullable|string',
         'ChargeTo' => 'nullable|string',
+        'Block' => 'nullable|string',
     ];
 
     public static function getAccountCount($consumerId) {
