@@ -26,16 +26,13 @@ class ServiceConnectionInspectionsAPI extends Controller {
                 'CRM_Barangays.Barangay AS BarangayFull',
                 'CRM_Towns.Town AS TownFull')
             // ->where('CRM_ServiceConnections.Status', "For Inspection")
-            ->where(function($query) {
-                $query->where('CRM_ServiceConnections.Status', "For Inspection")
-                    ->orWhere('CRM_ServiceConnections.Status', "Re-Inspection");
-            })
-            ->where(function ($query) {
-                $query->where('CRM_ServiceConnections.Trash', 'No')
-                    ->orWhereNull('CRM_ServiceConnections.Trash');
-            })
+            // ->where(function($query) {
+            //     $query->where('CRM_ServiceConnections.Status', "For Inspection")
+            //         ->orWhere('CRM_ServiceConnections.Status', "Re-Inspection");
+            // })
             ->where('CRM_ServiceConnectionInspections.Inspector', $request['userid'])
-            ->whereRaw("(InspectionSchedule <= '" . date('Y-m-d') . "' OR ReInspectionSchedule <= '" . date('Y-m-d') . "')")
+            ->whereRaw("(Trash IS NULL OR Trash='No')")
+            ->whereRaw("(InspectionSchedule <= '" . date('Y-m-d') . "' AND CRM_ServiceConnectionInspections.Status='FOR INSPECTION' AND ReInspectionSchedule IS NULL) OR (ReInspectionSchedule <= '" . date('Y-m-d') . "'AND CRM_ServiceConnectionInspections.Status='Re-Inspection')")
             ->get(); 
 
         if ($serviceConnections == null) {
@@ -54,16 +51,13 @@ class ServiceConnectionInspectionsAPI extends Controller {
                 'CRM_Barangays.Barangay AS BarangayFull',
                 'CRM_Towns.Town AS TownFull')
             // ->where('CRM_ServiceConnections.Status', "For Inspection")
-            ->where(function($query) {
-                $query->where('CRM_ServiceConnections.Status', "For Inspection")
-                    ->orWhere('CRM_ServiceConnections.Status', "Re-Inspection");
-            })
-            ->where(function ($query) {
-                $query->where('CRM_ServiceConnections.Trash', 'No')
-                    ->orWhereNull('CRM_ServiceConnections.Trash');
-            })
+            // ->where(function($query) {
+            //     $query->where('CRM_ServiceConnections.Status', "For Inspection")
+            //         ->orWhere('CRM_ServiceConnections.Status', "Re-Inspection");
+            // })
             ->where('CRM_ServiceConnectionInspections.Inspector', $request['userid'])
-            ->whereRaw("(InspectionSchedule <= '" . date('Y-m-d') . "' OR ReInspectionSchedule <= '" . date('Y-m-d') . "')")
+            ->whereRaw("(Trash IS NULL OR Trash='No')")
+            ->whereRaw("(InspectionSchedule <= '" . date('Y-m-d') . "' AND CRM_ServiceConnectionInspections.Status='FOR INSPECTION' AND ReInspectionSchedule IS NULL) OR (ReInspectionSchedule <= '" . date('Y-m-d') . "'AND CRM_ServiceConnectionInspections.Status='Re-Inspection')")
             ->get(); 
 
         if ($serviceConnections == null) {

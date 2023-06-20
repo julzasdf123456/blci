@@ -3785,4 +3785,333 @@ class ServiceConnectionsController extends AppBaseController
             'paymentOrder' => $paymentOrder,
         ]);
     }
+
+    public function inspectionMonitor(Request $request) {
+        return view('/service_connections/inspection_monitor', [
+            'inspectors' => User::role('Inspector')->get(),
+        ]);
+    }
+
+    public function getInspectionSummaryData(Request $request) {
+        $month = $request['ServicePeriod'];
+        $from = date('Y-m-d', strtotime($month));
+        $to = date('Y-m-d', strtotime($from . ' +1 month'));
+
+        $summary = DB::table('CRM_ServiceConnectionInspections')
+            ->leftJoin('users', 'CRM_ServiceConnectionInspections.Inspector', '=', 'users.id')
+            ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+            ->select('users.name', 'users.id',
+                DB::raw("(SELECT COUNT(a.id) FROM CRM_ServiceConnectionInspections a LEFT JOIN CRM_ServiceConnections b ON a.ServiceConnectionId=b.id WHERE b.Trash IS NULL AND a.Status IN ('FOR INSPECTION', 'Re-Inspection') AND a.Inspector=users.id AND (a.created_at BETWEEN '" . $from . "' AND '" . $to . "')) AS ForInspection"),
+                DB::raw("(SELECT COUNT(a.id) FROM CRM_ServiceConnectionInspections a LEFT JOIN CRM_ServiceConnections b ON a.ServiceConnectionId=b.id WHERE b.Trash IS NULL AND a.Status='Approved' AND a.Inspector=users.id AND (a.DateOfVerification BETWEEN '" . $from . "' AND '" . $to . "')) AS ApprovedThisMonth"),
+                DB::raw("(SELECT COUNT(a.id) FROM CRM_ServiceConnectionInspections a LEFT JOIN CRM_ServiceConnections b ON a.ServiceConnectionId=b.id WHERE b.Trash IS NULL AND a.Inspector=users.id AND (a.created_at BETWEEN '" . $from . "' AND '" . $to . "')) AS Total"),
+                DB::raw("(SELECT COUNT(a.id) FROM CRM_ServiceConnectionInspections a LEFT JOIN CRM_ServiceConnections b ON a.ServiceConnectionId=b.id WHERE b.Trash IS NULL AND a.Inspector=users.id AND (a.created_at BETWEEN '" . date('Y-m-d') . "' AND '" . date('Y-m-d', strtotime('tomorrow')) . "')) AS Today"),
+                DB::raw("(SELECT AVG(DATEDIFF(day, b.DateOfApplication, a.DateOfVerification)) FROM CRM_ServiceConnectionInspections a LEFT JOIN CRM_ServiceConnections b ON a.ServiceConnectionId=b.id WHERE b.Trash IS NULL AND a.Inspector=users.id AND (a.created_at BETWEEN '" . $from . "' AND '" . $to . "')) AS AverageHours"),
+            )
+            ->groupBy('users.name', 'users.id')
+            ->orderBy('users.name')
+            ->get();
+
+        $days = round((strtotime($to) - strtotime($from)) / (60 * 60 * 24));
+
+        $output = "";
+        foreach($summary as $item) {
+            if ($item->name != null) {
+                $output .= "<tr>
+                                <td>" . $item->name . "</td>
+                                <td class='text-right'>" . $item->Today . "</td>
+                                <td class='text-right'>" . $item->ForInspection . "</td>
+                                <td class='text-right'>" . $item->ApprovedThisMonth . "</td>
+                                <th class='text-right text-success'>" . $item->Total . "</th>
+                                <td class='text-right'>" . $days . "</td>
+                                <th class='text-right text-primary'>" . ($item->Total != null && intval($item->Total) > 0 ? round(intval($item->Total)/$days, 2) : 0) . "</th>
+                            </tr>";
+            }            
+        }
+
+        return response()->json($output, 200);
+    }
+
+    public function getInspectionSummaryDataCalendar(Request $request) {
+        $month = $request['ServicePeriod'];
+        $from = date('Y-m-d', strtotime($month));
+        $to = date('Y-m-d', strtotime($from . ' +1 month'));
+        $inspector = $request['Inspector'];
+
+        $inspection = DB::table('CRM_ServiceConnectionInspections')
+            ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+            ->whereRaw("Inspector='" . $inspector . "' AND ReInspectionSchedule IS NULL")
+            ->select(
+                DB::raw("'Inspection' AS Type"),
+                DB::raw("TRY_CAST(InspectionSchedule AS DATE) AS InspectionSchedule"),
+                DB::raw("COUNT(InspectionSchedule) AS Count"),
+            )
+            ->groupBy(DB::raw("TRY_CAST(InspectionSchedule AS DATE)"))
+            ->orderBy(DB::raw("TRY_CAST(InspectionSchedule AS DATE)"))
+            ->get();
+
+        $reinspection = DB::table('CRM_ServiceConnectionInspections')
+            ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+            ->whereRaw("Inspector='" . $inspector . "'")
+            ->select(
+                DB::raw("'ReInspection' AS Type"),
+                DB::raw("TRY_CAST(ReInspectionSchedule AS DATE) AS InspectionSchedule"),
+                DB::raw("COUNT(ReInspectionSchedule) AS Count"),
+            )
+            ->groupBy(DB::raw("TRY_CAST(ReInspectionSchedule AS DATE)"))
+            ->orderBy(DB::raw("TRY_CAST(ReInspectionSchedule AS DATE)"))
+            ->get();
+
+        $accomplished = DB::table('CRM_ServiceConnectionInspections')
+            ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+            ->whereRaw("Inspector='" . $inspector . "' AND DateOfVerification IS NOT NULL")
+            ->select(
+                DB::raw("'Accomplished' AS Type"),
+                DB::raw("TRY_CAST(DateOfVerification AS DATE) AS InspectionSchedule"),
+                DB::raw("COUNT(id) AS Count"),
+            )
+            ->groupBy(DB::raw("TRY_CAST(DateOfVerification AS DATE)"))
+            ->orderBy(DB::raw("TRY_CAST(DateOfVerification AS DATE)"))
+            ->get();
+
+        $arr = array_merge($inspection->toArray(), $reinspection->toArray(), $accomplished->toArray());
+
+        return response()->json($arr, 200);
+    }
+
+    public function getInspectionData(Request $request) {
+        $type = $request['Type'];
+        $inspector = $request['Inspector'];
+        $schedule = $request['Schedule'];
+
+        if ($type == 'Inspection') {
+            $data = DB::table('CRM_ServiceConnectionInspections')
+                ->leftJoin('CRM_ServiceConnections', 'CRM_ServiceConnectionInspections.ServiceConnectionId', '=', 'CRM_ServiceConnections.id')
+                ->leftJoin('CRM_Towns', 'CRM_ServiceConnections.Town', '=', 'CRM_Towns.id')
+                ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
+                ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+                ->whereRaw("Inspector='" . $inspector . "' AND InspectionSchedule='" . $schedule . "' AND ReInspectionSchedule IS NULL")
+                ->select(
+                    'CRM_ServiceConnections.id',
+                    'CRM_ServiceConnections.ServiceAccountName',
+                    'CRM_ServiceConnections.Sitio',
+                    'CRM_ServiceConnections.Status',
+                    'CRM_Towns.Town',
+                    'CRM_Barangays.Barangay'
+                )
+                ->orderBy('ServiceAccountName')
+                ->get();
+        } elseif ($type == 'Accomplished') {
+            $data = DB::table('CRM_ServiceConnectionInspections')
+                ->leftJoin('CRM_ServiceConnections', 'CRM_ServiceConnectionInspections.ServiceConnectionId', '=', 'CRM_ServiceConnections.id')
+                ->leftJoin('CRM_Towns', 'CRM_ServiceConnections.Town', '=', 'CRM_Towns.id')
+                ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
+                ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+                ->whereRaw("Inspector='" . $inspector . "' AND TRY_CAST(DateOfVerification AS DATE)='" . $schedule . "'")
+                ->select(
+                    'CRM_ServiceConnections.id',
+                    'CRM_ServiceConnections.ServiceAccountName',
+                    'CRM_ServiceConnections.Sitio',
+                    'CRM_ServiceConnections.Status',
+                    'CRM_Towns.Town',
+                    'CRM_Barangays.Barangay'
+                )
+                ->orderBy('ServiceAccountName')
+                ->get();
+        } else {
+            $data = DB::table('CRM_ServiceConnectionInspections')
+                ->leftJoin('CRM_ServiceConnections', 'CRM_ServiceConnectionInspections.ServiceConnectionId', '=', 'CRM_ServiceConnections.id')
+                ->leftJoin('CRM_Towns', 'CRM_ServiceConnections.Town', '=', 'CRM_Towns.id')
+                ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
+                ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+                ->whereRaw("Inspector='" . $inspector . "' AND ReInspectionSchedule='" . $schedule . "'")
+                ->select(
+                    'CRM_ServiceConnections.id',
+                    'CRM_ServiceConnections.ServiceAccountName',
+                    'CRM_ServiceConnections.Sitio',
+                    'CRM_ServiceConnections.Status',
+                    'CRM_Towns.Town',
+                    'CRM_Barangays.Barangay'
+                )
+                ->orderBy('ServiceAccountName')
+                ->get();
+        }
+
+        $output = "";
+        foreach($data as $item) {
+            $output .= "<tr>
+                            <td><a href='" . route('serviceConnections.show', [$item->id]) . "'>" . $item->id . "</a></td>
+                            <td>" . $item->ServiceAccountName . "</td>
+                            <td>" . ServiceConnections::getAddress($item) . "</td>
+                            <td>" . $item->Status . "</td>
+                        </tr>";
+        }
+
+        return response()->json($output, 200);
+    }
+
+    public function getInspectionSummary(Request $request) {
+        $type = $request['Type'];
+
+        if ($type == 'Inspection') {
+            $data = DB::table('CRM_ServiceConnectionInspections')
+                ->leftJoin('CRM_ServiceConnections', 'CRM_ServiceConnectionInspections.ServiceConnectionId', '=', 'CRM_ServiceConnections.id')
+                ->leftJoin('CRM_Towns', 'CRM_ServiceConnections.Town', '=', 'CRM_Towns.id')
+                ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
+                ->leftJoin('users', 'CRM_ServiceConnectionInspections.Inspector', '=', 'users.id')
+                ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+                ->whereRaw("ReInspectionSchedule IS NULL AND CRM_ServiceConnectionInspections.Status='FOR INSPECTION'")
+                ->select(
+                    'CRM_ServiceConnections.id',
+                    'CRM_ServiceConnections.ServiceAccountName',
+                    'CRM_ServiceConnections.Sitio',
+                    'CRM_ServiceConnections.Status',
+                    'CRM_Towns.Town',
+                    'CRM_Barangays.Barangay',
+                    'CRM_ServiceConnections.DateOfApplication',
+                    'CRM_ServiceConnections.AccountApplicationType',
+                    'CRM_ServiceConnectionInspections.ReInspectionSchedule',
+                    'CRM_ServiceConnectionInspections.InspectionSchedule',
+                    'users.name',
+                )
+                ->orderBy('ServiceAccountName')
+                ->get();
+        } else {
+            $data = DB::table('CRM_ServiceConnectionInspections')
+                ->leftJoin('CRM_ServiceConnections', 'CRM_ServiceConnectionInspections.ServiceConnectionId', '=', 'CRM_ServiceConnections.id')
+                ->leftJoin('CRM_Towns', 'CRM_ServiceConnections.Town', '=', 'CRM_Towns.id')
+                ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
+                ->leftJoin('users', 'CRM_ServiceConnectionInspections.Inspector', '=', 'users.id')
+                ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+                ->whereRaw("CRM_ServiceConnectionInspections.Status='Re-Inspection'")
+                ->select(
+                    'CRM_ServiceConnections.id',
+                    'CRM_ServiceConnections.ServiceAccountName',
+                    'CRM_ServiceConnections.Sitio',
+                    'CRM_ServiceConnections.Status',
+                    'CRM_Towns.Town',
+                    'CRM_Barangays.Barangay',
+                    'CRM_ServiceConnections.DateOfApplication',
+                    'CRM_ServiceConnections.AccountApplicationType',
+                    'CRM_ServiceConnectionInspections.ReInspectionSchedule',
+                    'CRM_ServiceConnectionInspections.InspectionSchedule',
+                    'users.name',
+                )
+                ->orderBy('ServiceAccountName')
+                ->get();
+        }
+
+        $output = "";
+        $i = 1;
+        foreach($data as $item) {
+            $output .= "<tr>
+                            <td>" . $i . "</td>
+                            <td><a href='" . route('serviceConnections.show', [$item->id]) . "'>" . $item->id . "</a></td>
+                            <td>" . $item->ServiceAccountName . "</td>
+                            <td>" . ServiceConnections::getAddress($item) . "</td>
+                            <td>" . $item->AccountApplicationType . "</td>
+                            <td>" . date('M d, Y', strtotime($item->DateOfApplication)) . "</td>
+                            <td>" . $item->name . "</td>
+                            <td>" . ($type == 'Inspection' ? date('M d, Y', strtotime($item->InspectionSchedule)) : ($item->ReInspectionSchedule != null ? date('M d, Y', strtotime($item->ReInspectionSchedule)) : 'n/a')) . "</td>
+                            <td>" . $item->Status . "</td>
+                        </tr>";
+
+            $i++;
+        }
+
+        return response()->json($output, 200);
+    }
+
+    public function getForReInspection(Request $request) {
+        $data = DB::table('CRM_ServiceConnectionInspections')
+            ->leftJoin('CRM_ServiceConnections', 'CRM_ServiceConnectionInspections.ServiceConnectionId', '=', 'CRM_ServiceConnections.id')
+            ->leftJoin('CRM_Towns', 'CRM_ServiceConnections.Town', '=', 'CRM_Towns.id')
+            ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
+            ->leftJoin('users', 'CRM_ServiceConnectionInspections.Inspector', '=', 'users.id')
+            ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+            ->whereRaw("ReInspectionSchedule IS NULL AND CRM_ServiceConnectionInspections.Status='Re-Inspection'")
+            ->select(
+                'CRM_ServiceConnections.id',
+                'CRM_ServiceConnectionInspections.id AS InspectionId',
+                'CRM_ServiceConnections.ServiceAccountName',
+                'CRM_ServiceConnections.Sitio',
+                'CRM_ServiceConnections.Status',
+                'CRM_Towns.Town',
+                'CRM_Barangays.Barangay',
+                'CRM_ServiceConnectionInspections.DateOfVerification',
+                'CRM_ServiceConnections.AccountApplicationType',
+                'CRM_ServiceConnectionInspections.ReInspectionSchedule',
+                'CRM_ServiceConnectionInspections.InspectionSchedule',
+                'users.name',
+            )
+            ->orderBy('ServiceAccountName')
+            ->get();
+
+        $output = "";
+        $i = 1;
+        foreach($data as $item) {
+            $output .= "<tr id='" . $item->InspectionId . "'>
+                            <td>" . $i . "</td>
+                            <td><a href='" . route('serviceConnections.show', [$item->id]) . "'>" . $item->id . "</a></td>
+                            <td>" . $item->ServiceAccountName . "</td>
+                            <td>" . ServiceConnections::getAddress($item) . "</td>
+                            <td>" . $item->AccountApplicationType . "</td>
+                            <td>" . date('M d, Y', strtotime($item->DateOfVerification)) . "</td>
+                            <td>" . $item->Status . "</td>
+                            <td>" . $item->name . "</td>
+                            <td>
+                                <input type='date' class='form-control form-control-sm' id='date-" . $item->InspectionId . "' placeholder='Set Re-Inspection Date'>
+                            </td>
+                            <td class='text-right'>
+                                <button class='btn btn-xs btn-success' onclick='saveSchedule(`" . $item->InspectionId . "`)'>Save</button>
+                            </td>
+                        </tr>";
+
+            $i++;
+        }
+
+        return response()->json($output, 200);
+    }
+
+    public function updateReInspectionSchedule(Request $request) {
+        $id = $request['id'];
+        $sched = $request['Schedule'];
+
+        $inspection = ServiceConnectionInspections::find($id);
+
+        if ($inspection != null) {
+            $inspection->ReInspectionSchedule = $sched;
+            $inspection->save();
+        }
+
+        return response()->json($inspection, 200);
+    }
+
+    public function forPayment(Request $request) {
+        $data = DB::table('CRM_ServiceConnections')
+            ->leftJoin('CRM_ServiceConnectionInspections', 'CRM_ServiceConnectionInspections.ServiceConnectionId', '=', 'CRM_ServiceConnections.id')
+            ->leftJoin('CRM_PaymentOrder', 'CRM_PaymentOrder.ServiceConnectionId', '=', 'CRM_ServiceConnections.id')
+            ->leftJoin('CRM_Towns', 'CRM_ServiceConnections.Town', '=', 'CRM_Towns.id')
+            ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
+            ->leftJoin('users', 'CRM_ServiceConnectionInspections.Inspector', '=', 'users.id')
+            ->whereRaw("CRM_ServiceConnections.Status='Approved' AND CRM_ServiceConnections.ORNumber IS NULL")
+            ->select(
+                'CRM_ServiceConnections.id',
+                'CRM_ServiceConnections.ServiceAccountName',
+                'CRM_ServiceConnections.Sitio',
+                'CRM_ServiceConnections.Status',
+                'CRM_Towns.Town',
+                'CRM_Barangays.Barangay',
+                'CRM_ServiceConnections.DateOfApplication',
+                'CRM_ServiceConnections.AccountApplicationType',
+                'CRM_ServiceConnectionInspections.DateOfVerification',
+                'users.name',
+                'CRM_PaymentOrder.OverAllTotal'
+            )
+            ->orderBy('ServiceAccountName')
+            ->get();
+
+        return view('/service_connections/for_payment', [
+            'data' => $data,
+        ]);
+    }
 }

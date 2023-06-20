@@ -149,6 +149,14 @@ Route::get('/service_connections/print-sevice-connections-report/{town}/{from}/{
 Route::get('/service_connections/payment-order/{scid}', [ServiceConnectionsController::class, 'paymentOrder'])->name('serviceConnections.payment-order');
 Route::post('/service_connections/save-payment-order', [ServiceConnectionsController::class, 'savePaymentOrder'])->name('serviceConnections.save-payment-order');
 Route::get('/service_connections/update-payment-order/{scid}', [ServiceConnectionsController::class, 'updatePaymentOrder'])->name('serviceConnections.update-payment-order');
+Route::get('/service_connections/inspection-monitor', [ServiceConnectionsController::class, 'inspectionMonitor'])->name('serviceConnections.inspection-monitor');
+Route::get('/service_connections/get-inspection-summary-data-calendar', [ServiceConnectionsController::class, 'getInspectionSummaryDataCalendar'])->name('serviceConnections.get-inspection-summary-data-calendar');
+Route::get('/service_connections/get-inspection-summary-data', [ServiceConnectionsController::class, 'getInspectionSummaryData'])->name('serviceConnections.get-inspection-summary-data');
+Route::get('/service_connections/get-inspection-data', [ServiceConnectionsController::class, 'getInspectionData'])->name('serviceConnections.get-inspection-data');
+Route::get('/service_connections/get-inspection-summary', [ServiceConnectionsController::class, 'getInspectionSummary'])->name('serviceConnections.get-inspection-summary');
+Route::get('/service_connections/get-for-reinspection', [ServiceConnectionsController::class, 'getForReInspection'])->name('serviceConnections.get-for-reinspection');
+Route::get('/service_connections/update-reinspection-schedule', [ServiceConnectionsController::class, 'updateReInspectionSchedule'])->name('serviceConnections.update-reinspection-schedule');
+Route::get('/service_connections/for-payment', [ServiceConnectionsController::class, 'forPayment'])->name('serviceConnections.for-payment');
 Route::resource('serviceConnections', App\Http\Controllers\ServiceConnectionsController::class);
 
 

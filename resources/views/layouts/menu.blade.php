@@ -127,6 +127,20 @@ use Illuminate\Support\Facades\Auth;
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a href="{{ route('serviceConnections.inspection-monitor') }}"
+                        class="nav-link {{ Request::is('serviceConnections.inspection-monitor*') ? 'active' : '' }}">
+                        <i class="fas fa-circle nav-icon text-warning"></i><p>Inspections</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('serviceConnections.for-payment') }}"
+                        class="nav-link {{ Request::is('serviceConnections.for-payment*') ? 'active' : '' }}">
+                        <i class="fas fa-circle nav-icon text-warning"></i><p>For Payment</p>
+                        </a>
+                    </li>
+
                     {{-- FLOW --}}
                     <li class="nav-item">
                         <a href="{{ route('serviceConnectionMtrTrnsfrmrs.assigning') }}"
