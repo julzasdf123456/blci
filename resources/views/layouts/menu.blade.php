@@ -141,6 +141,13 @@ use Illuminate\Support\Facades\Auth;
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a href="{{ route('serviceConnections.for-energization') }}"
+                        class="nav-link {{ Request::is('serviceConnections.for-energization*') ? 'active' : '' }}">
+                        <i class="fas fa-circle nav-icon text-warning"></i><p>For Energization</p>
+                        </a>
+                    </li>
+
                     {{-- FLOW --}}
                     <li class="nav-item">
                         <a href="{{ route('serviceConnectionMtrTrnsfrmrs.assigning') }}"

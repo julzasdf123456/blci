@@ -109,9 +109,9 @@ class ServiceConnectionInspections extends Model
         'DateOfVerification',
         'EstimatedDateForReinspection',
         'Notes',
+
         'InspectionSchedule',
         'ReInspectionSchedule',
-
         'LightingOutlets',
         'ConvenienceOutlets',
         'Motor',

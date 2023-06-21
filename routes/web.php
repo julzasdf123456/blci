@@ -157,6 +157,8 @@ Route::get('/service_connections/get-inspection-summary', [ServiceConnectionsCon
 Route::get('/service_connections/get-for-reinspection', [ServiceConnectionsController::class, 'getForReInspection'])->name('serviceConnections.get-for-reinspection');
 Route::get('/service_connections/update-reinspection-schedule', [ServiceConnectionsController::class, 'updateReInspectionSchedule'])->name('serviceConnections.update-reinspection-schedule');
 Route::get('/service_connections/for-payment', [ServiceConnectionsController::class, 'forPayment'])->name('serviceConnections.for-payment');
+Route::get('/service_connections/for-energization', [ServiceConnectionsController::class, 'forEnergization'])->name('serviceConnections.for-energization');
+Route::get('/service_connections/set-connection-schedule', [ServiceConnectionsController::class, 'setConnectionSchedule'])->name('serviceConnections.set-connection-schedule');
 Route::resource('serviceConnections', App\Http\Controllers\ServiceConnectionsController::class);
 
 

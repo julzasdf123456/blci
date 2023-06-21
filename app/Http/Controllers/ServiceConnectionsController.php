@@ -3889,6 +3889,7 @@ class ServiceConnectionsController extends AppBaseController
                 ->leftJoin('CRM_Towns', 'CRM_ServiceConnections.Town', '=', 'CRM_Towns.id')
                 ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
                 ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+                ->whereRaw("(Trash IS NULL OR Trash='No')")
                 ->whereRaw("Inspector='" . $inspector . "' AND InspectionSchedule='" . $schedule . "' AND ReInspectionSchedule IS NULL")
                 ->select(
                     'CRM_ServiceConnections.id',
@@ -3906,6 +3907,7 @@ class ServiceConnectionsController extends AppBaseController
                 ->leftJoin('CRM_Towns', 'CRM_ServiceConnections.Town', '=', 'CRM_Towns.id')
                 ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
                 ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+                ->whereRaw("(Trash IS NULL OR Trash='No')")
                 ->whereRaw("Inspector='" . $inspector . "' AND TRY_CAST(DateOfVerification AS DATE)='" . $schedule . "'")
                 ->select(
                     'CRM_ServiceConnections.id',
@@ -3923,6 +3925,7 @@ class ServiceConnectionsController extends AppBaseController
                 ->leftJoin('CRM_Towns', 'CRM_ServiceConnections.Town', '=', 'CRM_Towns.id')
                 ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
                 ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+                ->whereRaw("(Trash IS NULL OR Trash='No')")
                 ->whereRaw("Inspector='" . $inspector . "' AND ReInspectionSchedule='" . $schedule . "'")
                 ->select(
                     'CRM_ServiceConnections.id',
@@ -3959,6 +3962,7 @@ class ServiceConnectionsController extends AppBaseController
                 ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
                 ->leftJoin('users', 'CRM_ServiceConnectionInspections.Inspector', '=', 'users.id')
                 ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+                ->whereRaw("(Trash IS NULL OR Trash='No')")
                 ->whereRaw("ReInspectionSchedule IS NULL AND CRM_ServiceConnectionInspections.Status='FOR INSPECTION'")
                 ->select(
                     'CRM_ServiceConnections.id',
@@ -3982,6 +3986,7 @@ class ServiceConnectionsController extends AppBaseController
                 ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
                 ->leftJoin('users', 'CRM_ServiceConnectionInspections.Inspector', '=', 'users.id')
                 ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+                ->whereRaw("(Trash IS NULL OR Trash='No')")
                 ->whereRaw("CRM_ServiceConnectionInspections.Status='Re-Inspection'")
                 ->select(
                     'CRM_ServiceConnections.id',
@@ -4028,6 +4033,7 @@ class ServiceConnectionsController extends AppBaseController
             ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
             ->leftJoin('users', 'CRM_ServiceConnectionInspections.Inspector', '=', 'users.id')
             ->whereNotNull('CRM_ServiceConnectionInspections.Inspector')
+            ->whereRaw("(Trash IS NULL OR Trash='No')")
             ->whereRaw("ReInspectionSchedule IS NULL AND CRM_ServiceConnectionInspections.Status='Re-Inspection'")
             ->select(
                 'CRM_ServiceConnections.id',
@@ -4093,6 +4099,7 @@ class ServiceConnectionsController extends AppBaseController
             ->leftJoin('CRM_Towns', 'CRM_ServiceConnections.Town', '=', 'CRM_Towns.id')
             ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
             ->leftJoin('users', 'CRM_ServiceConnectionInspections.Inspector', '=', 'users.id')
+            ->whereRaw("(Trash IS NULL OR Trash='No')")
             ->whereRaw("CRM_ServiceConnections.Status='Approved' AND CRM_ServiceConnections.ORNumber IS NULL")
             ->select(
                 'CRM_ServiceConnections.id',
@@ -4113,5 +4120,52 @@ class ServiceConnectionsController extends AppBaseController
         return view('/service_connections/for_payment', [
             'data' => $data,
         ]);
+    }
+
+    public function forEnergization(Request $request) {
+        $data = DB::table('CRM_ServiceConnections')
+            ->leftJoin('CRM_ServiceConnectionInspections', 'CRM_ServiceConnectionInspections.ServiceConnectionId', '=', 'CRM_ServiceConnections.id')
+            ->leftJoin('CRM_Towns', 'CRM_ServiceConnections.Town', '=', 'CRM_Towns.id')
+            ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
+            ->leftJoin('users', 'CRM_ServiceConnectionInspections.Inspector', '=', 'users.id')
+            ->whereRaw("(Trash IS NULL OR Trash='No')")
+            ->whereRaw("CRM_ServiceConnections.Status='For Energization' AND CRM_ServiceConnections.ORNumber IS NOT NULL")
+            ->select(
+                'CRM_ServiceConnections.id',
+                'CRM_ServiceConnections.ServiceAccountName',
+                'CRM_ServiceConnections.Sitio',
+                'CRM_ServiceConnections.Status',
+                'CRM_Towns.Town',
+                'CRM_Barangays.Barangay',
+                'CRM_ServiceConnections.DateOfApplication',
+                'CRM_ServiceConnections.AccountApplicationType',
+                'CRM_ServiceConnectionInspections.DateOfVerification',
+                'CRM_ServiceConnections.ConnectionSchedule',
+                'CRM_ServiceConnections.StationCrewAssigned',
+                'users.name',
+            )
+            ->orderBy('ConnectionSchedule')
+            ->orderBy('ServiceAccountName')
+            ->get();
+
+        return view('/service_connections/for_energization', [
+            'data' => $data,
+            'crew' => ServiceConnectionCrew::orderBy('StationName')->get(),
+        ]);
+    }
+
+    public function setConnectionSchedule(Request $request) {
+        $id = $request['id'];
+        $schedule = $request['Schedule'];
+        $crew = $request['Crew'];
+
+        $serviceConnection = ServiceConnections::find($id);
+        if ($serviceConnection != null) {
+            $serviceConnection->ConnectionSchedule = $schedule;
+            $serviceConnection->StationCrewAssigned = $crew;
+            $serviceConnection->save();
+        }
+
+        return response()->json($serviceConnection, 200);
     }
 }
