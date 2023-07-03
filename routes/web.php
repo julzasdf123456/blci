@@ -159,6 +159,7 @@ Route::get('/service_connections/update-reinspection-schedule', [ServiceConnecti
 Route::get('/service_connections/for-payment', [ServiceConnectionsController::class, 'forPayment'])->name('serviceConnections.for-payment');
 Route::get('/service_connections/for-energization', [ServiceConnectionsController::class, 'forEnergization'])->name('serviceConnections.for-energization');
 Route::get('/service_connections/set-connection-schedule', [ServiceConnectionsController::class, 'setConnectionSchedule'])->name('serviceConnections.set-connection-schedule');
+Route::get('/service_connections/get-existing-accounts', [ServiceConnectionsController::class, 'getExistingAccounts'])->name('serviceConnections.get-existing-accounts');
 Route::resource('serviceConnections', App\Http\Controllers\ServiceConnectionsController::class);
 
 
@@ -895,3 +896,18 @@ Route::resource('warehouseItems', App\Http\Controllers\WarehouseItemsController:
 
 
 Route::resource('items', App\Http\Controllers\ItemsController::class);
+
+
+Route::resource('costCenters', App\Http\Controllers\CostCentersController::class);
+
+
+Route::resource('projectCodes', App\Http\Controllers\ProjectCodesController::class);
+
+
+Route::resource('zones', App\Http\Controllers\ZonesController::class);
+
+
+Route::resource('blocks', App\Http\Controllers\BlocksController::class);
+
+
+Route::resource('meterInstallations', App\Http\Controllers\MeterInstallationController::class);

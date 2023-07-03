@@ -85,10 +85,10 @@ use Illuminate\Support\Facades\Auth;
                             <li class="nav-item"><a class="nav-link" href="#verification" data-toggle="tab">
                                 <i class="fas fa-clipboard-check"></i>
                                 Verification</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#metering" data-toggle="tab">
+                            <li class="nav-item"><a class="nav-link active" href="#metering" data-toggle="tab">
                                 <i class="fas fa-tachometer-alt"></i>
                                 Metering and Transformer</a></li>
-                            <li class="nav-item"><a class="nav-link active" href="#invoice" data-toggle="tab">
+                            <li class="nav-item"><a class="nav-link" href="#invoice" data-toggle="tab">
                                 <i class="fas fa-file-invoice-dollar"></i>
                                 Payment Order</a></li>
                             {{-- @if ($serviceConnections->LoadCategory == 'above 5kVa' | $serviceConnections->LongSpan == 'Yes')
@@ -111,11 +111,11 @@ use Illuminate\Support\Facades\Auth;
                                 @include('service_connections.tab_verification')
                             </div>
 
-                            <div class="tab-pane" id="metering">
+                            <div class="tab-pane active" id="metering">
                                 @include('service_connections.tab_metering')
                             </div>
 
-                            <div class="tab-pane active" id="invoice">
+                            <div class="tab-pane" id="invoice">
                                 @include('service_connections.tab_invoice')
                             </div>
                             

@@ -12,6 +12,7 @@ use App\Models\ServiceConnectionCrew;
 use App\Models\MastPoles;
 use App\Models\IDGenerator;
 use App\Models\MeterReaders;
+use App\Models\MeterInstallation;
 
 class ServiceConnectionsEnergization extends Controller {
 
@@ -97,8 +98,10 @@ class ServiceConnectionsEnergization extends Controller {
     public function updateEnergized(Request $request) {
         $serviceConnections = ServiceConnections::find($request['id']);
         $serviceConnections->Status = $request['Status'];
-        $serviceConnections->DateTimeLinemenArrived = $request['DateTimeLinemenArrived'];
+        // $serviceConnections->DateTimeLinemenArrived = $request['DateTimeLinemenArrived'];
         $serviceConnections->DateTimeOfEnergization = $request['DateTimeOfEnergization'];
+        $serviceConnections->PoleNumber = $request['PoleNumber'];
+        $serviceConnections->TransformerID = $request['TransformerID'];
         $serviceConnections->Notes = $request['Notes'];
 
         if ($serviceConnections->save()) {
@@ -170,5 +173,20 @@ class ServiceConnectionsEnergization extends Controller {
         }
 
         return response()->json($mastPole, 200);
+    }
+
+    public function receiveMeterInstallations(Request $request) {
+        $input = $request->all();
+
+        $id = $input['id'];
+        $meterInstallation = MeterInstallation::find($id);
+
+        if ($meterInstallation != null) {
+            $meterInstallation = MeterInstallation::update($input);
+        } else {
+            $meterInstallation = MeterInstallation::create($input);
+        }
+        
+        return response()->json($meterInstallation, 200);
     }
 }

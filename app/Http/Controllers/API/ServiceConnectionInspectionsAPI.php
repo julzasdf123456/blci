@@ -10,6 +10,8 @@ use App\Models\ServiceConnectionTimeframes;
 use App\Models\IDGenerator;
 use App\Models\ServiceConnectionPayTransaction;
 use App\Models\ServiceConnectionTotalPayments;
+use App\Models\Zones;
+use App\Models\Blocks;
 use Illuminate\Support\Facades\DB;
 use Validator;
 
@@ -212,5 +214,13 @@ class ServiceConnectionInspectionsAPI extends Controller {
         } else {
             return response()->json(['res' => 'empty sc id'], 200);
         }
+    }
+
+    public function getZones() {
+        return response()->json(Zones::all(), 200);
+    }
+
+    public function getBlocks() {
+        return response()->json(Blocks::all(), 200);
     }
 }

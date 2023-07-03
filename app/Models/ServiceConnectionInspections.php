@@ -137,6 +137,8 @@ class ServiceConnectionInspections extends Model
         'LinePassingRoads',
         'Recommendation',
         'ForPayment',
+        'Rate',
+        'BillDeposit'
     ];
 
     /**
@@ -212,6 +214,8 @@ class ServiceConnectionInspections extends Model
         'LinePassingRoads' => 'string',
         'Recommendation' => 'string',
         'ForPayment' => 'string',
+        'Rate' => 'string',
+        'BillDeposit' => 'string'
     ];
 
     /**
@@ -289,6 +293,8 @@ class ServiceConnectionInspections extends Model
         'LinePassingRoads' => 'nullable|string',
         'Recommendation' => 'nullable|string',
         'ForPayment' => 'nullable|string',
+        'Rate' => 'nullable|string',
+        'BillDeposit' => 'nullable|string'
     ];
 
     

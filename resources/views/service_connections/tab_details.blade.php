@@ -70,7 +70,7 @@
     </tr>
     <tr>
         <td class="text-muted">Zone and Block</td>
-        <td style="border-right: 1px solid #adadad;">Zone {{ $serviceConnections->Zone }} | Block {{ $serviceConnections->Block }}</td>
+        <td style="border-right: 1px solid #adadad;">{{ $serviceConnections->Zone }}-{{ $serviceConnections->Block }}</td>
         <td class="text-muted" style="padding-left: 50px;">TA (Days)</td>
         <td><i class="fas fa-exclamation-circle text-danger"></i></td>  
     </tr>

@@ -35,7 +35,7 @@
                   <td></td>
                   <td>Entry No : </td>
                   <td>
-                     <input type="number" id="EntryNo" class="form-control form-control-xs text-right" autofocus>
+                     <input type="number" id="EntryNo" class="form-control form-control-xs text-right" value="{{ $entNoLast != null ? (floatval($entNoLast->ent_no) + 1) : 0 }}">
                   </td>
                </tr>
                <tr>
@@ -68,7 +68,13 @@
                <tr>
                   <td>Cost Center :</td>
                   <td>
-                     <input type="text" id="CostCenter" class="form-control form-control-xs">
+                     {{-- <input type="text" id="CostCenter" class="form-control form-control-xs"> --}}
+                     <select class="custom-select select2 form-control-xs" name="CostCenter" id="CostCenter">
+                        <option value="">-- Select --</option>
+                        @foreach ($costCenters as $item)
+                            <option value="{{ $item->CostCode }}" data_desc="{{ $item->CostName }}" data_dept="{{ $item->CostDepartment }}" title="{{ $item->CostName }}">{{ $item->CostCode }}</option>
+                        @endforeach
+                    </select>
                   </td>
                   <td>
                      <input type="text" id="CostCenterDescription" class="form-control form-control-xs" readonly>
@@ -84,7 +90,7 @@
                <tr>
                   <td>Charge To :</td>
                   <td>
-                     <input type="text" id="ChargeTo" class="form-control form-control-xs">
+                     <input type="text" id="ChargeTo" class="form-control form-control-xs" readonly>
                   </td>
                   <td></td>
                   <td>Type Of Service: </td>
@@ -98,7 +104,13 @@
                <tr>
                   <td>Project Code :</td>
                   <td colspan="2">
-                     <input type="text" id="ProjectCode" class="form-control form-control-xs">
+                     {{-- <input type="text" id="ProjectCode" class="form-control form-control-xs"> --}}
+                     <select class="custom-select select2 form-control-xs" name="ProjectCode" id="ProjectCode">
+                        <option value="">-- Select --</option>
+                        @foreach ($projectCodes as $item)
+                            <option value="{{ $item->ProjectCode }}">{{ $item->ProjectCode }} ({{ $item->ProjectDescription }})</option>
+                        @endforeach
+                    </select>
                   </td>
                   <td>Remarks: </td>
                   <td colspan="2" rowspan="2">
@@ -315,6 +327,11 @@
             var total = getTotalItemCost(qty, selectedItemCost)
 
             $('#ItemTotalCost').val(Math.round((total + Number.EPSILON) * 100) / 100)
+         })
+
+         $('#CostCenter').change(function() {
+            $('#CostCenterDescription').val($('option:selected', this).attr('data_desc'))
+            $('#ChargeTo').val($('option:selected', this).attr('data_dept'))
          })
 
          /** 

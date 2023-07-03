@@ -16,6 +16,7 @@
         {{-- HIDDEN FIELDS --}}
         <input type="hidden" name="Status" value="For Inspection">
         <input type="hidden" name="Town" value="01" id="Town">
+        <input type="hidden" name="AccountNumber" value="" id="AccountNumber">
         <input type="hidden" name="UserId" value="{{ Auth::id() }}">
         <input type="hidden" name="DateOfApplication" value="{{ date('Y-m-d') }}">
         <input type="hidden" name="TimeOfApplication" value="{{ date('H:i:s') }}">
@@ -23,12 +24,32 @@
 
         <p id="Def_Brgy" style="display: none;">01</p>
 
+        {{-- UPPER CARD --}}
         <div class="col-lg-12">
             <div class="card shadow-none">
                 <div class="card-body table-responsive p-0">
                     <table class="table table-sm table-borderless">
+                        <tr style="border-bottom: 1px solid #9a9a9a">
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="customer-profile" id="new-inst" checked value="New Installation">
+                                    <label class="form-check-label" for="new-inst"><strong>New Installation</strong></label>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="customer-profile" id="existing" value="Existing">
+                                    <label class="form-check-label" for="existing"><strong>Existing</strong></label>
+                                </div>
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
                         <tr>
-                            <td>Customer Name: <strong class="text-danger">*</strong></td>
+                            <td>
+                                Customer Name: <strong class="text-danger">*</strong>
+                                <button class="btn btn-sm btn-info float-right gone" data-toggle="modal" data-target="#modal-select-customers" id="select-costumer">Select Costumer</button>
+                            </td>
                             <td>
                                 <input type="text" class="form-control form-control-sm uc-text-smooth" required autofocus name="ServiceAccountName" id="ServiceAccountName" value="">
                             </td>
@@ -58,7 +79,7 @@
                             </td>
                             <td>Contact/Tel. No:  <strong class="text-danger">*</strong></td>
                             <td>
-                                <input type="text" class="form-control form-control-sm" name="ContactNumber" id="ContactNumber" value="">
+                                <input type="text" class="form-control form-control-sm" name="ContactNumber" id="ContactNumber" value="" required>
                             </td>
                         </tr>
                     </table>
@@ -66,6 +87,7 @@
             </div>
         </div>
 
+        {{-- LOWER CARD --}}
         <div class="col-lg-12">
             <div class="card shadow-none">
                 <div class="card-body table-responsive p-0">
@@ -91,11 +113,12 @@
                         </tr>
                         {{-- ROW 2 --}}
                         <tr>
-                            <td>Service Applied For: </td>
+                            <td>Service Applied For:   <strong class="text-danger">*</strong></td>
                             <td>
-                                <select name="AccountApplicationType" id="AccountApplicationType" class="form-control form-control-sm">
+                                <select name="AccountApplicationType" id="AccountApplicationType" class="form-control form-control-sm" required>
+                                    <option value="">--Select--</option>
                                     @foreach ($serviceAppliedFor as $item)
-                                        <option value="{{ $item->ServiceAppliedFor }}">{{ $item->ServiceAppliedFor }}</option>
+                                        <option value="{{ $item->ServiceAppliedFor }}" {{ $item->ServiceAppliedFor=='NEW INSTALLATION' ? 'selected' : '' }}>{{ $item->ServiceAppliedFor }}</option>
                                     @endforeach
                                 </select>
                             </td>
@@ -197,6 +220,9 @@
     {!! Form::close() !!}
 @endsection
 
+{{-- MODAL EXISTING CUSTOMERS --}}
+@include('service_connections.modal_select_customers')
+
 @push('page_scripts')
     <script>
         $('#InspectionSchedule').datetimepicker({
@@ -235,6 +261,18 @@
 
             document.querySelectorAll(".uc-text-smooth").forEach(function(current) {
                 current.addEventListener("keypress", forceKeyPressUppercase);
+            });
+
+            $("input[name=customer-profile]").change(function() {
+                var selected = $("input[name=customer-profile]:checked").val()
+                if (selected == 'New Installation') {
+                    $('#AccountApplicationType').val('NEW INSTALLATION')
+                    $('#select-costumer').addClass('gone')
+                    $('#AccountNumber').val('')
+                } else {
+                    $('#AccountApplicationType').val('')
+                    $('#select-costumer').removeClass('gone')
+                }
             });
         })
     </script>

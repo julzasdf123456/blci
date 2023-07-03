@@ -1,211 +1,120 @@
-@if ($serviceConnections->ORNumber == null)
-    <p class="text-danger"><i class="fas fa-info-circle ico-tab"></i> <i>Assigning of meter and transformer will only be available if the consumer has already paid all the payables.</i></p>
+@if ($serviceConnectionMeter == null)
+    <p class="text-danger"><i class="fas fa-info-circle ico-tab"></i> <i>No meter information assigned yet!</i></p>
 @else
-    <div class="card card-primary card-outline">
-        <div class="card-header border-0">
-            <h3 class="card-title">Meter Details</h3>
-            <div class="card-tools">
-                @if($serviceConnectionMeter == null)
-                    @if (Auth::user()->hasAnyRole(['Administrator', 'Heads and Managers', 'Metering Personnel'])) 
-                        <a href="{{ route('serviceConnectionMtrTrnsfrmrs.create-step-three', [$serviceConnections->id]) }}" class="btn btn-sm" title="Add Metering Details">
-                            <i class="fas fa-pen"></i>
-                        </a>
-                    @endif                    
-                @else
-                    @if (Auth::user()->hasAnyRole(['Administrator', 'Heads and Managers', 'Metering Personnel'])) 
-                        <a href="{{ route('serviceConnectionMtrTrnsfrmrs.edit', [$serviceConnectionMeter->id]) }}" class="btn btn-sm" title="Update Metering Details">
-                            <i class="fas fa-pen"></i>
-                        </a>
-                    @endif 
-                    
-                    <button type="button" class="btn btn-sm" data-card-widget="collapse" title="Collapse"><i class="fas fa-minus"></i></button>
-                @endif           
-            </div>
-        </div>
-
-        <div class="card-body table-responsive p-0">
-            @if($serviceConnectionMeter == null)
-                <p class="text-center"><i>No metering data found!</i></p>
-            @else
-                <table class="table table-valign-middle">
-                    <tr>
-                        <th>Metering Type</th>
-                        <td>{{ $serviceConnectionMeter->TypeOfMetering }}</td>
-                    </tr>
-                    <tr>
-                        <th>Brand</th>
-                        <td>{{ $serviceConnectionMeter->MeterBrand }}</td>
-                    </tr>
-                    <tr>
-                        <th>Serial Number</th>
-                        <td>{{ $serviceConnectionMeter->MeterSerialNumber }}</td>
-                    </tr>
-                    <tr>
-                        <th>Seal Number</th>
-                        <td>{{ $serviceConnectionMeter->MeterSealNumber }}</td>
-                    </tr>
-                    <tr>
-                        <th>Enclosure Type</th>
-                        <td>{{ $serviceConnectionMeter->MeterEnclosureType }}</td>
-                    </tr>
-                    <tr>
-                        <th>Height</th>
-                        <td>{{ $serviceConnectionMeter->MeterHeight==null ? '' :  $serviceConnectionMeter->MeterHeight . ' meter'}}</td>
-                    </tr>
-                    <tr>
-                        <th>kWh Start</th>
-                        <td>{{ $serviceConnectionMeter->MeterKwhStart }}</td>
-                    </tr>               
-                    @if ($serviceConnectionMeter->TypeOfMetering == 'DIRECT')
+    <div class="row p-3">
+        {{-- METER --}}
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-info-circle ico-tab"></i>Meter Information</span>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-sm table-hover">
                         <tr>
-                            <th>Metering Equipment Capacity</th>
-                            <td>{{ $serviceConnectionMeter->DirectRatedCapacity }}</td>
-                        </tr>  
-                        <tr>
-                            <th>Phase</th>
-                            <td>{{ $serviceConnectionMeter->Phase }}</td>
-                        </tr> 
-                    @elseif ($serviceConnectionMeter->TypeOfMetering == 'INSTRUMENT RATED')
-                        <tr>
-                            <th>Metering Equipment Capacity</th>
-                            <td>{{ $serviceConnectionMeter->InstrumentRatedCapacity }}</td>
-                        </tr> 
-                        <tr>
-                            <th>Phase</th>
-                            <td>{{ $serviceConnectionMeter->Phase }}</td>
+                            <td>Meter Number</td>
+                            <td><strong>{{ $serviceConnectionMeter->NewMeterNumber }}</strong></td>
                         </tr>
                         <tr>
-                            <th>Line Type</th>
-                            <td>{{ $serviceConnectionMeter->InstrumentRatedLineType }}</td>
+                            <td>Meter Brand</td>
+                            <td><strong>{{ $serviceConnectionMeter->NewMeterBrand }}</strong></td>
                         </tr>
-                    @else
-
-                    @endif
-                    <tr>
-                        <th>Notes and Remarks</th>
-                        <td>{{ $serviceConnectionMeter->MeterNotes }}</td>
-                    </tr>
-                </table>
-            @endif        
-        </div>
-    </div>
-
-    <div class="card card-primary card-outline">
-        <div class="card-header border-0">
-            <h3 class="card-title">Transformer Details</h3>
-            <div class="card-tools">
-                @if($serviceConnectionMeter == null)
-                    @if (Auth::user()->hasAnyRole(['Administrator', 'Heads and Managers', 'Metering Personnel'])) 
-                        <a href="{{ route('serviceConnectionMtrTrnsfrmrs.create-step-three', [$serviceConnections->id]) }}" class="btn btn-sm" title="Add Transformer Details">
-                            <i class="fas fa-pen"></i>
-                        </a>
-                    @endif
-                @else
-                    @if (Auth::user()->hasAnyRole(['Administrator', 'Heads and Managers', 'Metering Personnel'])) 
-                        <a href="{{ route('serviceConnectionMtrTrnsfrmrs.edit', [$serviceConnectionMeter->id]) }}" class="btn btn-sm" title="Update Transformer Details">
-                            <i class="fas fa-pen"></i>
-                        </a>
-                    @endif
-                    <button type="button" class="btn btn-sm" data-card-widget="collapse" title="Collapse"><i class="fas fa-minus"></i></button>
-                @endif  
-            </div>
-        </div>
-
-        <div class="card-body table-responsive p-0">
-            @if($serviceConnectionMeter == null)
-                <p class="text-center"><i>No transformer data found!</i></p>
-            @else
-                <table class="table table-valign-middle">
-                    <tr>
-                        <th>Brand</th>
-                        <td>{{ $serviceConnectionMeter->TransformerBrand }}</td>
-                    </tr>
-                    <tr>
-                        <th>Serial Number</th>
-                        <td>{{ $serviceConnectionMeter->TransformerNumber }}</td>
-                    </tr>
-                    <tr>
-                        <th>Rating</th>
-                        <td>{{ $serviceConnectionMeter->TransformerRating }}</td>
-                    </tr>
-                    <tr>
-                        <th>Quantity</th>
-                        <td>{{ $serviceConnectionMeter->TransformerQuantity }}</td>
-                    </tr>
-                    <tr>
-                        <th>Ownership</th>
-                        <td>{{ $serviceConnectionMeter->TransformerOwnership }}</td>
-                    </tr>
-                    <tr>
-                        <th>Ownership Type</th>
-                        <td>{{ $serviceConnectionMeter->TransformerOwnershipType }}</td>
-                    </tr>
-                </table>
-            @endif        
-        </div>
-    </div>
-
-    @if ($serviceConnectionMeter != null)
-        @if ($serviceConnectionMeter->TypeOfMetering == 'INSTRUMENT RATED')
-        <div class="card card-primary card-outline">
-            <div class="card-header border-0">
-                <h3 class="card-title">Equipment and Others</h3>
-                <div class="card-tools">
-                    <button type="button" class="btn btn-sm" data-card-widget="collapse" title="Collapse">
-                        <i class="fas fa-minus"></i>
-                    </button>
+                        <tr>
+                            <td>Ampere Rating</td>
+                            <td><strong>{{ $serviceConnectionMeter->NewMeterAmperes }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Old Meter No.</td>
+                            <td><strong>{{ $serviceConnectionMeter->OldMeterNumber }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Initial Reading</td>
+                            <td><strong>{{ $serviceConnectionMeter->NewMeterInitialReading }} kWh</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Multiplier</td>
+                            <td><strong>{{ $serviceConnectionMeter->NewMeterMultiplier }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Date Installed</td>
+                            <td><strong>{{ $serviceConnectionMeter->DateInstalled != null ? date('M d, Y', strtotime($serviceConnectionMeter->DateInstalled)) : "" }}</strong></td>
+                        </tr>
+                    </table>
                 </div>
             </div>
+        </div>
 
-            <div class="card-body table-responsive p-0">
-                @if($serviceConnectionMeter == null)
-                    <p><i>No data found!</i></p>
-                @else
-                    <table class="table table-valign-middle">
-                        <thead>
-                            <th></th>
-                            <th>Phase A</th>
-                            <th>Phase B</th>
-                            <th>Phase C</th>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th>CT Rated Capacity</th>
-                                <td>{{ $serviceConnectionMeter->CTPhaseA }}</td>
-                                <td>{{ $serviceConnectionMeter->CTPhaseB }}</td>
-                                <td>{{ $serviceConnectionMeter->CTPhaseC }}</td>
-                            </tr>
-                            <tr>
-                                <th>PT Rated Capacity</th>
-                                <td>{{ $serviceConnectionMeter->PTPhaseA }}</td>
-                                <td>{{ $serviceConnectionMeter->PTPhaseB }}</td>
-                                <td>{{ $serviceConnectionMeter->PTPhaseC }}</td>
-                            </tr>
-                            <tr>
-                                <th>Brand</th>
-                                <td>{{ $serviceConnectionMeter->BrandPhaseA }}</td>
-                                <td>{{ $serviceConnectionMeter->BrandPhaseB }}</td>
-                                <td>{{ $serviceConnectionMeter->BrandPhaseC }}</td>
-                            </tr>
-                            <tr>
-                                <th>Serial Number</th>
-                                <td>{{ $serviceConnectionMeter->SNPhaseA }}</td>
-                                <td>{{ $serviceConnectionMeter->SNPhaseB }}</td>
-                                <td>{{ $serviceConnectionMeter->SNPhaseC }}</td>
-                            </tr>
-                            <tr>
-                                <th>Security Seal Number</th>
-                                <td>{{ $serviceConnectionMeter->SecuritySealPhaseA }}</td>
-                                <td>{{ $serviceConnectionMeter->SecuritySealPhaseB }}</td>
-                                <td>{{ $serviceConnectionMeter->SecuritySealPhaseC }}</td>
-                            </tr>
-                        </tbody>
+        {{-- TRANSFORMER --}}
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-info-circle ico-tab"></i>Transformer and Line Information</span>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-sm table-hover">
+                        <tr>
+                            <td>Line to Neutral Voltage</td>
+                            <td><strong>{{ $serviceConnectionMeter->NewMeterLineToNeutral }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Line to Ground Voltage</td>
+                            <td><strong>{{ $serviceConnectionMeter->NewMeterLineToGround }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Neutral to Ground Voltage</td>
+                            <td><strong>{{ $serviceConnectionMeter->NewMeterNeutralToGround }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Transformer Capacity</td>
+                            <td><strong>{{ $serviceConnectionMeter->TransformerCapacity }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Transformer ID</td>
+                            <td><strong>{{ $serviceConnectionMeter->TransformerID }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Pole ID</td>
+                            <td><strong>{{ $serviceConnections->PoleNumber }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Feeder</td>
+                            <td><strong>{{ $serviceConnections->Feeder }}</strong></td>
+                        </tr>
                     </table>
-                @endif        
+                </div>
             </div>
         </div>
-        @endif
-    @endif
+
+        {{-- CUSTOMER SIGNATURE --}}
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-info-circle ico-tab"></i>Customer Signature</span>
+                </div>
+                <div class="card-body p-0">
+                    <p class="text-center">
+                        <img src="data:image/png;base64,{{ $serviceConnectionMeter->CustomerSignature }}" alt="Signature" width="140">
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {{-- LOGS --}}
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-info-circle ico-tab"></i>Installation Logs</span>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-sm table-hover">
+                        <tr>
+                            <td>Installed By</td>
+                            <td><strong>{{ $serviceConnectionMeter->InstalledBy }}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 @endif
 
 

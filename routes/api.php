@@ -31,6 +31,8 @@ Route::get('get-service-connections/', [ServiceConnectionInspectionsAPI::class, 
 Route::get('get-service-inspections/', [ServiceConnectionInspectionsAPI::class, 'getServiceInspections']);
 Route::post('update-service-inspections/', [ServiceConnectionInspectionsAPI::class, 'updateServiceInspections']);
 Route::post('receive-bill-deposits', [ServiceConnectionInspectionsAPI::class, 'receiveBillDeposits']);
+Route::get('get-zones', [ServiceConnectionInspectionsAPI::class, 'getZones']);
+Route::get('get-blocks', [ServiceConnectionInspectionsAPI::class, 'getBlocks']);
 
 Route::get('get-payment-queues/', [TelleringController::class, 'fetchApprovedServiceConnections']);
 
@@ -41,6 +43,7 @@ Route::post('update-energized', [ServiceConnectionsEnergization::class, 'updateE
 Route::post('create-timeframes', [ServiceConnectionsEnergization::class, 'createTimeFrames']);
 Route::get('update-downloaded-service-connection-status', [ServiceConnectionsEnergization::class, 'updateDownloadedServiceConnectionStatus']);
 Route::post('receive-mast-poles', [ServiceConnectionsEnergization::class, 'receiveMastPoles']);
+Route::post('receive-meter-installations', [ServiceConnectionsEnergization::class, 'receiveMeterInstallations']);
 
 Route::get('get-towns', [OtherData::class, 'getTowns']);
 Route::get('get-barangays', [OtherData::class, 'getBarangays']);

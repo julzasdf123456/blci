@@ -1384,6 +1384,21 @@ use Illuminate\Support\Facades\Auth;
             </li>
 
             <li class="nav-item">
+                <a href="{{ route('zones.index') }}"
+                   class="nav-link {{ Request::is('zones*') ? 'active' : '' }}">
+                   <i class="fas fa-circle nav-icon"></i><p>Zones</p>
+                </a>
+            </li>
+            
+            
+            <li class="nav-item">
+                <a href="{{ route('blocks.index') }}"
+                   class="nav-link {{ Request::is('blocks*') ? 'active' : '' }}">
+                   <i class="fas fa-circle nav-icon"></i><p>Blocks</p>
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a href="{{ route('serviceConnectionCrews.index') }}"
                    class="nav-link {{ Request::is('serviceConnectionCrews*') ? 'active' : '' }}">
                    <i class="fas fa-map-marked-alt nav-icon"></i><p>Station Crews</p>
@@ -1458,5 +1473,4 @@ use Illuminate\Support\Facades\Auth;
         </ul>
     </li>
 @endcan
-
 

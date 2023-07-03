@@ -44,6 +44,9 @@ use App\Models\Signatories;
 use App\Models\WarehouseHead;
 use App\Models\WarehouseItems;
 use App\Models\PaymentOrder;
+use App\Models\CostCenters;
+use App\Models\ProjectCodes;
+use App\Models\MeterInstallation;
 use App\Exports\ServiceConnectionApplicationsReportExport;
 use App\Exports\ServiceConnectionEnergizationReportExport;
 use App\Exports\DynamicExportsNoBillingMonth;
@@ -337,7 +340,7 @@ class ServiceConnectionsController extends AppBaseController
             ->orderByDesc('CRM_ServiceConnectionInspections.created_at')
             ->first();
         
-        $serviceConnectionMeter = ServiceConnectionMtrTrnsfrmr::where('ServiceConnectionId', $id)->first();
+        $serviceConnectionMeter = MeterInstallation::where('ServiceConnectionId', $id)->first();
 
         $timeFrame = DB::table('CRM_ServiceConnectionTimeframes')
                 ->leftJoin('users', 'CRM_ServiceConnectionTimeframes.UserId', '=', 'users.id')
@@ -3611,6 +3614,12 @@ class ServiceConnectionsController extends AppBaseController
             ->select('*')
             ->first();
 
+        $entNoLast = DB::connection('mysql')
+            ->table('tblor_head')
+            ->select('ent_no')
+            ->orderByDesc('ent_no')
+            ->first();
+
         if ($whHead != null) {
             $whItems = DB::connection('mysql')
                 ->table('tblor_line')
@@ -3631,6 +3640,9 @@ class ServiceConnectionsController extends AppBaseController
             'whHead' => $whHead,
             'whItems' => $whItems,
             'serviceConnection' => $serviceConnection,
+            'entNoLast' => $entNoLast,
+            'costCenters' => CostCenters::orderBy('CostCode')->get(),
+            'projectCodes' => ProjectCodes::orderBy('ProjectCode')->get(),
         ]);
     }
 
@@ -3705,7 +3717,7 @@ class ServiceConnectionsController extends AppBaseController
         // SAVE WAREHOUSE HEAD
         $whHead = new WarehouseHead;
         $whHead->orderno = $reqNo;
-        $whHead->ent_no = 0;
+        $whHead->ent_no = $entryNo;
         $whHead->misno = $mirsNo;
         $whHead->tdate = date('m/d/Y');
         $whHead->emp_id = Auth::id();
@@ -3783,6 +3795,8 @@ class ServiceConnectionsController extends AppBaseController
             'whItems' => $whItems,
             'serviceConnection' => $serviceConnection,
             'paymentOrder' => $paymentOrder,
+            'costCenters' => CostCenters::orderBy('CostCode')->get(),
+            'projectCodes' => ProjectCodes::orderBy('ProjectCode')->get(),
         ]);
     }
 
@@ -4167,5 +4181,46 @@ class ServiceConnectionsController extends AppBaseController
         }
 
         return response()->json($serviceConnection, 200);
+    }
+
+    public function getExistingAccounts(Request $request) {
+        $search = $request['Params'];
+
+        $serviceAccounts = DB::table('Billing_ServiceAccounts')
+                        ->leftJoin('CRM_Towns', 'Billing_ServiceAccounts.Town', '=', 'CRM_Towns.id')
+                        ->leftJoin('CRM_Barangays', 'Billing_ServiceAccounts.Barangay', '=', 'CRM_Barangays.id')
+                        ->select('Billing_ServiceAccounts.id', 
+                            'Billing_ServiceAccounts.ServiceAccountName',
+                            'Billing_ServiceAccounts.Purok',
+                            'Billing_ServiceAccounts.OldAccountNo',   
+                            'Billing_ServiceAccounts.AccountCount',  
+                            'Billing_ServiceAccounts.AccountStatus',
+                            'Billing_ServiceAccounts.ContactNumber',
+                            'Billing_ServiceAccounts.AccountType',
+                            'Billing_ServiceAccounts.Barangay AS BarangayId',
+                            'MeterNumber',
+                            'CRM_Towns.Town', 
+                            'CRM_Barangays.Barangay')
+                        ->whereRaw("Billing_ServiceAccounts.OldAccountNo LIKE '%" . $search . "%' OR Billing_ServiceAccounts.ServiceAccountName LIKE '%" . $search . "%' OR Billing_ServiceAccounts.MeterNumber LIKE '%" . $search . "%'")
+                        ->orderBy('Billing_ServiceAccounts.ServiceAccountName')
+                        ->get(); 
+
+        $output = "";
+        foreach($serviceAccounts as $item) {
+            $output .= "<tr id='" . $item->id . "' onclick='selectCustomer(`" . $item->id . "`)' 
+                data_id='" . $item->id . "' 
+                data_name='" . $item->ServiceAccountName . "'
+                data_purok='" . $item->Purok . "'
+                data_contact='" . $item->ContactNumber . "'
+                data_barangay='" . $item->BarangayId . "'>
+                            <td>" . $item->OldAccountNo . "</td>
+                            <td>" . $item->ServiceAccountName . "</td>
+                            <td>" . ServiceAccounts::getAddress($item) . "</td>
+                            <td>" . $item->MeterNumber . "</td>
+                            <td>" . $item->AccountType . "</td>
+                        </tr>";
+        }
+
+        return response()->json($output, 200);
     }
 }
