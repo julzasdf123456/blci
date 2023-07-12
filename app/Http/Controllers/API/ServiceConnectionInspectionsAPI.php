@@ -133,6 +133,7 @@ class ServiceConnectionInspectionsAPI extends Controller {
         $serviceConnectionInspections->LinePassingRoads = $request['LinePassingRoads'];
         $serviceConnectionInspections->Recommendation = $request['Recommendation'];
         $serviceConnectionInspections->ForPayment = $request['ForPayment'];
+        $serviceConnectionInspections->BillDeposit = $request['BillDeposit'];
 
         if ($serviceConnectionInspections->save()) {
             $serviceConnections->save();

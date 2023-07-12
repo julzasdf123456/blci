@@ -58,6 +58,10 @@
                             <td>{{ $serviceConnectionInspections->DateOfVerification != null ? date('F d, Y', strtotime($serviceConnectionInspections->DateOfVerification)) : ''}}</td>
                         </tr>
                         <tr>
+                            <td>Customer Bill Deposit</td>
+                            <td>{{ $serviceConnectionInspections->BillDeposit != null ? number_format($serviceConnectionInspections->BillDeposit, 2) : 0 }}</td>
+                        </tr>
+                        <tr>
                             <td>Notes and Remarks</td>
                             <td>{{ $serviceConnectionInspections->Notes }}</td>
                         </tr>

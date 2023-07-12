@@ -3635,6 +3635,8 @@ class ServiceConnectionsController extends AppBaseController
             ->whereRaw("id='" . $scId . "'")
             ->select('*')
             ->first();
+
+        $inspection = ServiceConnectionInspections::where('ServiceConnectionId', $scId)->first();
         
         return view('/service_connections/payment_order', [
             'whHead' => $whHead,
@@ -3643,6 +3645,7 @@ class ServiceConnectionsController extends AppBaseController
             'entNoLast' => $entNoLast,
             'costCenters' => CostCenters::orderBy('CostCode')->get(),
             'projectCodes' => ProjectCodes::orderBy('ProjectCode')->get(),
+            'inspection' => $inspection,
         ]);
     }
 

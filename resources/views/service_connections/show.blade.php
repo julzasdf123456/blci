@@ -79,13 +79,13 @@ use Illuminate\Support\Facades\Auth;
                 <div class="card shadow-none">
                     <div class="card-header p-2">
                         <ul class="nav nav-pills">
-                            <li class="nav-item"><a class="nav-link" href="#details" data-toggle="tab">
+                            <li class="nav-item"><a class="nav-link active" href="#details" data-toggle="tab">
                                 <i class="fas fa-info-circle"></i>
                                 Application Basic Details</a></li>
                             <li class="nav-item"><a class="nav-link" href="#verification" data-toggle="tab">
                                 <i class="fas fa-clipboard-check"></i>
                                 Verification</a></li>
-                            <li class="nav-item"><a class="nav-link active" href="#metering" data-toggle="tab">
+                            <li class="nav-item"><a class="nav-link" href="#metering" data-toggle="tab">
                                 <i class="fas fa-tachometer-alt"></i>
                                 Metering and Transformer</a></li>
                             <li class="nav-item"><a class="nav-link" href="#invoice" data-toggle="tab">
@@ -103,7 +103,7 @@ use Illuminate\Support\Facades\Auth;
                     </div>
                     <div class="card-body p-0">
                         <div class="tab-content">
-                            <div class="tab-pane" id="details">
+                            <div class="tab-pane active" id="details">
                                 @include('service_connections.tab_details')
                             </div>
 
@@ -111,7 +111,7 @@ use Illuminate\Support\Facades\Auth;
                                 @include('service_connections.tab_verification')
                             </div>
 
-                            <div class="tab-pane active" id="metering">
+                            <div class="tab-pane" id="metering">
                                 @include('service_connections.tab_metering')
                             </div>
 

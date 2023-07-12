@@ -211,7 +211,7 @@
               <tr>
                  <td>Customer Deposit</td>
                  <td>
-                    <input type="number" step="any" onkeyup="validateTotalInputs()" id="CustomerDeposit" name="CustomerDeposit" class="form-control form-control-sm text-right" autofocus>
+                    <input type="number" step="any" onkeyup="validateTotalInputs()" id="CustomerDeposit" name="CustomerDeposit" class="form-control form-control-sm text-right">
                  </td>
               </tr>
               <tr>
@@ -338,6 +338,8 @@
           * FEES AREA
           * =================================
           */
+         $('#CustomerDeposit').val("{{ $inspection != null && $inspection->BillDeposit != null ? $inspection->BillDeposit : 0 }}").change()
+         $('#CustomerDeposit').trigger('onkeyup')
       })
 
       /**
