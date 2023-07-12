@@ -3678,6 +3678,17 @@ class ServiceConnectionsController extends AppBaseController
         $typeOfServiceId = $request['TypeOfServiceId'];
         $entryNo = $request['EntryNo'];
 
+        $serviceConnections = DB::table('CRM_ServiceConnections')
+            ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
+            ->leftJoin('CRM_Towns', 'CRM_ServiceConnections.Town', '=', 'CRM_Towns.id')
+            ->select('CRM_ServiceConnections.id as id',
+                        'CRM_ServiceConnections.Sitio as Sitio', 
+                        'CRM_Towns.Town as Town',
+                        'CRM_Barangays.Barangay as Barangay',
+                        )
+        ->where('CRM_ServiceConnections.id', $ServiceConnectionId)
+        ->first();
+
         $materialItems = json_decode(stripslashes($materialItems));
 
         // CHECK FIRST IF PAYMENT ORDER EXIST
@@ -3722,6 +3733,7 @@ class ServiceConnectionsController extends AppBaseController
         $whHead->orderno = $reqNo;
         $whHead->ent_no = $entryNo;
         $whHead->misno = $mirsNo;
+        $whHead->address = ServiceConnections::getAddress($serviceConnections);
         $whHead->tdate = date('m/d/Y');
         $whHead->emp_id = Auth::id();
         $whHead->ccode = $CostCenter;
