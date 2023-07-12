@@ -63,7 +63,7 @@
                     @enderror
                 </div> --}}
 
-                <input type="remember_token" value="token">
+                <input type="hidden" name="remember_token" value="token">
 
                 <div class="input-group mb-3">
                     <input type="text"
