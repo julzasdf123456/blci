@@ -567,44 +567,6 @@ use Illuminate\Support\Facades\Auth;
             </li>
         </ul>
     </li>
-
-    {{-- BAKA --}}
-    <li class="nav-item has-treeview">
-        <a href="#" class="nav-link">
-            <i class="fas fa-layer-group nav-icon text-primary"></i>
-            <p>
-                BAPA
-                <i class="fas fa-angle-left right"></i>
-            </p>
-        </a>
-        <ul class="nav nav-treeview">
-            <li class="nav-item">
-                <a href="{{ route('serviceAccounts.bapa') }}"
-                   class="nav-link {{ Request::is('serviceAccounts.bapa*') ? 'active' : '' }}">                   
-                   <i class="fas fa-list nav-icon text-primary"></i><p>All BAPA</p>
-                </a>    
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('bAPAReadingSchedules.index') }}"
-                   class="nav-link {{ Request::is('bAPAReadingSchedules.index*') ? 'active' : '' }}">                   
-                   <i class="fas fa-calendar nav-icon text-primary"></i><p>BAPA Reading Sched</p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('bills.bapa-manual-billing') }}"
-                   class="nav-link {{ Request::is('bills.bapa-manual-billing*') ? 'active' : '' }}">                   
-                   <i class="fas fa-circle nav-icon text-primary"></i><p>Manual Billing</p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('readings.print-bapa-reading-list') }}"
-                   class="nav-link {{ Request::is('readings.print-bapa-reading-list*') ? 'active' : '' }}">                   
-                   <i class="fas fa-print nav-icon text-primary"></i><p>Print Reading List
-                   </p>
-                </a>
-            </li>
-        </ul>
-    </li>
 @endcanany
 
 {{-- BILLS --}}
