@@ -43,7 +43,7 @@
             <form method="post" action="{{ route('register') }}">
                 @csrf
 
-                <div class="input-group mb-3">
+                {{-- <div class="input-group mb-3">
                     <select name="remember_token" id="remember_token" class="form-control">
                         <option value="CADIZ" {{ env("APP_LOCATION")=='CADIZ' ? 'selected' : '' }}>CADIZ</option>
                         <option value="EB MAGALONA" {{ env("APP_LOCATION")=='EB MAGALONA' ? 'selected' : '' }}>EB MAGALONA</option>
@@ -61,7 +61,7 @@
                     @error('remember_token')
                     <span class="error invalid-feedback">{{ $message }}</span>
                     @enderror
-                </div>
+                </div> --}}
 
                 <div class="input-group mb-3">
                     <input type="text"
