@@ -891,6 +891,7 @@ Route::resource('itemsCosts', App\Http\Controllers\ItemsCostController::class);
 Route::resource('warehouseHeads', App\Http\Controllers\WarehouseHeadController::class);
 
 Route::get('/warehouse_items/get-searched-materials', [App\Http\Controllers\WarehouseItemsController::class, 'getSearchedMaterials'])->name('warehouseItems.get-searched-materials');
+Route::get('/warehouse_items/get-searched-meters', [App\Http\Controllers\WarehouseItemsController::class, 'getSearchedMeters'])->name('warehouseItems.get-searched-meters');
 Route::get('/warehouse_items/remove-item', [App\Http\Controllers\WarehouseItemsController::class, 'removeItem'])->name('warehouseItems.remove-item');
 Route::resource('warehouseItems', App\Http\Controllers\WarehouseItemsController::class);
 

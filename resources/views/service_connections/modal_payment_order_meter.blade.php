@@ -1,21 +1,21 @@
 {{-- MODAL FOR ADDING MATERIALS --}}
-<div class="modal fade" id="modal-add-items" aria-hidden="true" style="display: none;">
+<div class="modal fade" id="modal-add-meter" aria-hidden="true" style="display: none;">
    <div class="modal-dialog modal-xl">
        <div class="modal-content">
            <div class="modal-header">
-               <h4 class="modal-title">Add Material Item</h4>
+               <h4 class="modal-title">Add Meter</h4>
                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                    <span aria-hidden="true">×</span>
                </button>
            </div>
            <div class="modal-body">
                <div class="form-group">
-                  <label for="Search" style="display: inline;">Search</label>
-                  <input type="text" id="Search" class="form-control form-control-sm" style="width: 350px; display: inline;" autofocus>
+                  <label for="meter-Search" style="display: inline;">Search</label>
+                  <input type="text" id="meter-Search" class="form-control form-control-sm" style="width: 350px; display: inline;" autofocus>
                </div>
 
                {{-- RESULTS --}}
-               <table id="item-results" class="table table-sm table-bordered table-hover">
+               <table id="meter-item-results" class="table table-sm table-bordered table-hover">
                   <thead>
                      <th>Item Code</th>
                      <th>Name</th>
@@ -36,29 +36,29 @@
 
 @push('page_scripts')
    <script>
-      $('#Search').keyup(function() {
+      $('#meter-Search').keyup(function() {
          var len = this.value.length
          if (len > 3) {
-            searchItems(this.value)
+            search(this.value)
          } else {
-            $('#item-results tbody tr').remove()
+            $('#meter-item-results tbody tr').remove()
          }
       })
 
-      $('#modal-add-items').on('shown.bs.modal', function() {
+      $('#modal-add-meter').on('shown.bs.modal', function() {
          $(this).find('[autofocus]').focus();
       });
 
-      function searchItems(regex) {
-         $('#item-results tbody tr').remove()
+      function search(regex) {
+         $('#meter-item-results tbody tr').remove()
          $.ajax({
-            url : "{{ route('warehouseItems.get-searched-materials') }}",
+            url : "{{ route('warehouseItems.get-searched-meters') }}",
             type : 'GET',
             data : {
                Regex : regex,
             },
             success : function(res) {
-               $('#item-results tbody').append(res)
+               $('#meter-item-results tbody').append(res)
             },
             error : function(err) {
                Toast.fire({
@@ -69,17 +69,17 @@
          })
       }
 
-      function selectMaterialItem(id) {
-         $('#ItemCode').val($('#' + id).attr('data_itcode'))
-         $('#ItemDescription').val($('#' + id).attr('data_itdesc'))
+      function selectMaterial(id) {
+         $('#meter-ItemCode').val($('#' + id).attr('meter_data_itcode'))
+         $('#meter-ItemDescription').val($('#' + id).attr('meter_data_itdesc'))
 
-         selectedItemCost = parseFloat($('#' + id).attr('data_cst'))
-         selectedUOM = $('#' + id).attr('data_uom')
+         selectedItemCost = parseFloat($('#' + id).attr('meter_data_cst'))
+         selectedUOM = $('#' + id).attr('meter_data_uom')
 
-         $('#modal-add-items').modal('hide')
-         $('#Search').val('')
-         $('#item-results tbody tr').remove()
-         $('#ItemQuantity').focus()
+         $('#modal-add-meter').modal('hide')
+         $('#meter-Search').val('')
+         $('#meter-item-results tbody tr').remove()
+         $('#meter-ItemQuantity').focus()
       }
    </script>
 @endpush

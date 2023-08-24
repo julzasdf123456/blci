@@ -182,12 +182,55 @@ class WarehouseItemsController extends AppBaseController
 
         $output = '';
         foreach($data as $item) {
-            $output .= "<tr onclick=selectMaterial('" . $item->itmno . "')
+            $output .= "<tr onclick=selectMaterialItem('" . $item->itmno . "')
                                 id='" . $item->itmno . "' 
                                 data_itcode='" . $item->itcode . "'
                                 data_itdesc='" . $item->itdesc . "'
                                 data_uom='" . $item->uom . "'
                                 data_cst='" . $item->cst . "'>
+                            <td>" . $item->itcode . "</td>
+                            <td>" . $item->itdesc . "</td>
+                            <td>" . $item->uom . "</td>
+                            <td class='text-right'>" . (is_numeric($item->cst) ? number_format(floatval($item->cst), 2) : $item->cst) . "</td>
+                            <td class='text-right'>" . (is_numeric($item->sprice) ? number_format(floatval($item->sprice), 2) : $item->sprice) . "</td>
+                            <td class='text-right'>" . (is_numeric($item->dprice) ? number_format(floatval($item->dprice), 2) : $item->dprice) . "</td>
+                            <td class='text-right'>" . $item->qty . "</td>
+                        </tr>";
+        }
+
+        return response()->json($output, 200);
+    }
+
+    public function getSearchedMeters(Request $request) {
+        $regex = $request['Regex'];
+
+        $data = DB::connection('mysql')
+                ->select(
+                    DB::raw("Select 
+                        a.it_code as itcode, 
+                        b.itm_desc as itdesc,
+                        a.uom as uom, 
+                        a.cst as cst, 
+                        (a.cst * 1.20) as sprice, 
+                        (a.cst * 1.12) as dprice,
+                        (SUM(c.lgr_qtyin) - SUM(c.lgr_qtyout)) as qty, 
+                        a.id as itmno 
+                    FROM tblitems_cost a 
+                    INNER JOIN tblitems b ON a.it_code = b.itm_code 
+                    INNER JOIN tblitem_lgr c ON a.it_code = c.lgr_itmcode AND a.cst = c.lgr_cost and c.status = 'POSTED' 
+                    WHERE (itm_desc LIKE '%" . $regex . "%' OR it_code LIKE '%" . $regex . "%')
+                    GROUP BY itmno 
+                    ORDER BY itdesc, rdate DESC")
+                );
+
+        $output = '';
+        foreach($data as $item) {
+            $output .= "<tr onclick=selectMaterial('" . $item->itmno . "')
+                                id='" . $item->itmno . "' 
+                                meter_data_itcode='" . $item->itcode . "'
+                                meter_data_itdesc='" . $item->itdesc . "'
+                                meter_data_uom='" . $item->uom . "'
+                                meter_data_cst='" . $item->cst . "'>
                             <td>" . $item->itcode . "</td>
                             <td>" . $item->itdesc . "</td>
                             <td>" . $item->uom . "</td>

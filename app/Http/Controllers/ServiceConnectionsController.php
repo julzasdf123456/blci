@@ -364,7 +364,8 @@ class ServiceConnectionsController extends AppBaseController
 
         $paymentOrder = PaymentOrder::where('ServiceConnectionId', $id)->first();
 
-        $whHead = WarehouseHead::where('appl_no', $id)->first();
+        // ITEMS
+        $whHead = WarehouseHead::where('appl_no', $id)->whereRaw("orderno NOT LIKE 'M%'")->first();
         if ($whHead != null) {
             $whItems = DB::connection('mysql')
                 ->table('tblor_line')
@@ -380,6 +381,23 @@ class ServiceConnectionsController extends AppBaseController
             $whItems = [];
         }
 
+        // METERS
+        $whHeadMeters = WarehouseHead::where('appl_no', $id)->whereRaw("orderno LIKE 'M%'")->first();
+        if ($whHeadMeters != null) {
+            $whItemsMeters = DB::connection('mysql')
+                ->table('tblor_line')
+                ->leftJoin('tblitems', 'tblor_line.itemcd', '=', 'tblitems.itm_code')
+                ->whereRaw("reqno='" . $whHeadMeters->orderno . "'")
+                ->select(
+                    'tblor_line.*', 
+                    'tblitems.itm_desc'
+                    )
+                ->orderBy('itemno')
+                ->get();
+        } else {
+            $whItemsMeters = [];
+        }
+
         $serviceConnectionChecklistsRep = ServiceConnectionChecklistsRep::all();
         
         $serviceConnectionChecklists = ServiceConnectionChecklists::where('ServiceConnectionId', $id)->pluck('ChecklistId')->all();
@@ -390,17 +408,20 @@ class ServiceConnectionsController extends AppBaseController
          * ASSESS PERMISSIONS
          */
         if(Auth::user()->hasAnyPermission(['view membership', 'sc view', 'Super Admin'])) {
-            return view('service_connections.show', ['serviceConnections' => $serviceConnections, 
-                                                'serviceConnectionInspections' => $serviceConnectionInspections, 
-                                                'serviceConnectionMeter' => $serviceConnectionMeter, 
-                                                'timeFrame' => $timeFrame,
-                                                'serviceConnectionChecklistsRep' => $serviceConnectionChecklistsRep,
-                                                'serviceConnectionChecklists' => $serviceConnectionChecklists,
-                                                'images' => $images,
-                                                'paymentOrder' => $paymentOrder,
-                                                'whHead' => $whHead,
-                                                'whItems' => $whItems,
-                                            ]);
+            return view('service_connections.show', [
+                            'serviceConnections' => $serviceConnections, 
+                            'serviceConnectionInspections' => $serviceConnectionInspections, 
+                            'serviceConnectionMeter' => $serviceConnectionMeter, 
+                            'timeFrame' => $timeFrame,
+                            'serviceConnectionChecklistsRep' => $serviceConnectionChecklistsRep,
+                            'serviceConnectionChecklists' => $serviceConnectionChecklists,
+                            'images' => $images,
+                            'paymentOrder' => $paymentOrder,
+                            'whHead' => $whHead,
+                            'whItems' => $whItems,
+                            'whHeadMeters' => $whHeadMeters,
+                            'whItemsMeters' => $whItemsMeters,
+                        ]);
         } else {
             return abort(403, "You're not authorized to view a service connection application.");
         }        
@@ -3651,6 +3672,7 @@ class ServiceConnectionsController extends AppBaseController
 
     public function savePaymentOrder(Request $request) {
         $materialItems = $request['MaterialItems'];
+        $meterItems = $request['MeterItems'];
         $ServiceConnectionId = $request['ServiceConnectionId'];
         $MaterialDeposit = $request['MaterialDeposit'];
         $TransformerRentalFees = $request['TransformerRentalFees'];
@@ -3677,6 +3699,16 @@ class ServiceConnectionsController extends AppBaseController
         $customerName = $request['CustomerName'];
         $typeOfServiceId = $request['TypeOfServiceId'];
         $entryNo = $request['EntryNo'];
+        $meter_reqNo = $request['MeterReqNo'];
+        $meter_mirsNo = $request['MeterMIRSNo'];
+        $meter_CostCenter = $request['MeterCostCenter'];
+        $meter_chargeTo = $request['MeterChargeTo'];
+        $meter_projectCode = $request['MeterProjectCode'];
+        $meter_requestedBy = $request['MeterRequestedBy'];
+        $meter_invoiceNo = $request['MeterInvoiceNo'];
+        $meter_customerName = $request['MeterCustomerName'];
+        $meter_typeOfServiceId = $request['MeterTypeOfServiceId'];
+        $meter_entryNo = $request['MeterEntryNo'];
 
         $serviceConnections = DB::table('CRM_ServiceConnections')
             ->leftJoin('CRM_Barangays', 'CRM_ServiceConnections.Barangay', '=', 'CRM_Barangays.id')
@@ -3690,6 +3722,7 @@ class ServiceConnectionsController extends AppBaseController
         ->first();
 
         $materialItems = json_decode(stripslashes($materialItems));
+        $meterItems = json_decode(stripslashes($meterItems));
 
         // CHECK FIRST IF PAYMENT ORDER EXIST
         $paymentOrder = PaymentOrder::where('ServiceConnectionId', $ServiceConnectionId)->first();
@@ -3719,16 +3752,20 @@ class ServiceConnectionsController extends AppBaseController
         $paymentOrder->save();
 
         // DELETE WAREHOUSE HEAD
-        $whHead = WarehouseHead::where('appl_no', $ServiceConnectionId)->first();
+        $whHead = WarehouseHead::where('appl_no', $ServiceConnectionId)->get();
 
         if ($whHead != null) {
-            $whHead->delete();
+            foreach($whHead as $item) {
+                $item->delete();
 
-            // DELETE MATERIAL ITEMS FIRST
-            $whItems = WarehouseItems::where('reqno', $whHead->orderno)->delete();
+                // DELETE MATERIAL ITEMS FIRST
+                $whItems = WarehouseItems::where('reqno', $item->orderno)->delete();
+            }            
         }
+        // WarehouseHead::where('appl_no', $ServiceConnectionId)->delete();
+        // WarehouseItems::where('reqno', $whHead->orderno)->delete();
 
-        // SAVE WAREHOUSE HEAD
+        // SAVE WAREHOUSE HEAD ITEMS
         $whHead = new WarehouseHead;
         $whHead->orderno = $reqNo;
         $whHead->ent_no = $entryNo;
@@ -3772,13 +3809,57 @@ class ServiceConnectionsController extends AppBaseController
             $whItems->save();
         }
 
+        // SAVE WAREHOUSE HEAD METERS
+        $whHead = new WarehouseHead;
+        $whHead->orderno = $meter_reqNo;
+        $whHead->ent_no = $meter_entryNo;
+        $whHead->misno = $meter_mirsNo;
+        $whHead->address = ServiceConnections::getAddress($serviceConnections);
+        $whHead->tdate = date('m/d/Y');
+        $whHead->emp_id = Auth::id();
+        $whHead->ccode = $CostCenter;
+        $whHead->dept = $meter_chargeTo;
+        $whHead->pcode = $meter_projectCode;
+        $whHead->reqby = $meter_requestedBy;
+        $whHead->invoice = $meter_invoiceNo;
+        $whHead->orno = $ORNumber;
+        $whHead->purpose = 'FOR ' . strtoupper($meter_customerName);
+        $whHead->serv_code = $meter_typeOfServiceId;
+        $whHead->account_no = $ServiceConnectionId;
+        $whHead->cust_name = $meter_customerName;
+        $whHead->tot_amt = $MaterialTotal;
+        $whHead->chkby = $meter_requestedBy;
+        $whHead->stat = 'Checked';
+        $whHead->rdate = date('m/d/Y');
+        $whHead->rtime = date('h:i A');
+        $whHead->walk_in = 0;
+        $whHead->appl_no = $ServiceConnectionId;
+        $whHead->appby = ' ';
+        $whHead->save();
+
+        foreach($meterItems as $item) {
+            $whItems = new WarehouseItems;
+            $whItems->reqno = $item->ReqNo;
+            $whItems->ent_no = $item->EntryNo;            
+            $whItems->tdate = date('m/d/Y');
+            $whItems->itemcd = $item->ItemCode;  
+            $whItems->qty = $item->ItemQuantity;  
+            $whItems->uom = $item->ItemUOM; 
+            $whItems->cst = $item->ItemUnitPrice; 
+            $whItems->amt = $item->ItemTotalCost; 
+            $whItems->itemno = $item->ItemNo; 
+            $whItems->rdate = date('m/d/Y');
+            $whItems->rtime = date('h:i A');
+            $whItems->save();
+        }
+
         return response()->json('ok', 200);
     }
 
     public function updatePaymentOrder($scId) {
         $whHead = DB::connection('mysql')
             ->table('tblor_head')
-            ->whereRaw("appl_no='" . $scId . "'")
+            ->whereRaw("appl_no='" . $scId . "' AND orderno NOT LIKE 'M%'")
             ->select('*')
             ->first();
 
@@ -3795,7 +3876,28 @@ class ServiceConnectionsController extends AppBaseController
                 ->get();
         } else {
             $whItems = [];
-        }     
+        }  
+        
+        $whHeadMeters = DB::connection('mysql')
+            ->table('tblor_head')
+            ->whereRaw("appl_no='" . $scId . "' AND orderno LIKE 'M%'")
+            ->select('*')
+            ->first();
+
+        if ($whHeadMeters != null) {
+            $whItemsMeters = DB::connection('mysql')
+                ->table('tblor_line')
+                ->leftJoin('tblitems', 'tblor_line.itemcd', '=', 'tblitems.itm_code')
+                ->whereRaw("reqno='" . $whHeadMeters->orderno . "'")
+                ->select(
+                    'tblor_line.*', 
+                    'tblitems.itm_desc'
+                    )
+                ->orderBy('itemno')
+                ->get();
+        } else {
+            $whItemsMeters = [];
+        }  
         
         $serviceConnection = DB::connection('sqlsrv')
             ->table('CRM_ServiceConnections')
