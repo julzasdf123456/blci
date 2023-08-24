@@ -3785,7 +3785,12 @@ class ServiceConnectionsController extends AppBaseController
         $whHead->cust_name = $customerName;
         $whHead->tot_amt = $MaterialTotal;
         $whHead->chkby = $requestedBy;
-        $whHead->stat = 'Checked';
+        if (Auth::user()->hasAnyRole(ServiceConnections::whHeadStatus())) {
+            $whHead->stat = 'Checked';
+        } else {
+            $whHead->stat = 'Pending';
+        }
+        
         $whHead->rdate = date('m/d/Y');
         $whHead->rtime = date('h:i A');
         $whHead->walk_in = 0;
@@ -3829,7 +3834,11 @@ class ServiceConnectionsController extends AppBaseController
         $whHead->cust_name = $meter_customerName;
         $whHead->tot_amt = $MaterialTotal;
         $whHead->chkby = $meter_requestedBy;
-        $whHead->stat = 'Checked';
+        if (Auth::user()->hasAnyRole(ServiceConnections::whHeadStatus())) {
+            $whHead->stat = 'Checked';
+        } else {
+            $whHead->stat = 'Pending';
+        }
         $whHead->rdate = date('m/d/Y');
         $whHead->rtime = date('h:i A');
         $whHead->walk_in = 0;
@@ -3910,6 +3919,8 @@ class ServiceConnectionsController extends AppBaseController
         return view('/service_connections/update_payment_order', [
             'whHead' => $whHead,
             'whItems' => $whItems,
+            'whHeadMeters' => $whHeadMeters,
+            'whItemsMeters' => $whItemsMeters,
             'serviceConnection' => $serviceConnection,
             'paymentOrder' => $paymentOrder,
             'costCenters' => CostCenters::orderBy('CostCode')->get(),

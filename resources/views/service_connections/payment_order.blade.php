@@ -187,6 +187,7 @@
             $('#ItemQuantity').focus()
          });
 
+         // ITEMS
          $('#ItemQuantity').keyup(function() {
             var qty = 0
             if(jQuery.isEmptyObject(this.value)) {
@@ -213,6 +214,7 @@
             $('#ItemTotalCost').val(Math.round((total + Number.EPSILON) * 100) / 100)
          })
 
+         // METER
          $('#meter-ItemQuantity').keyup(function() {
             var qty = 0
             if(jQuery.isEmptyObject(this.value)) {

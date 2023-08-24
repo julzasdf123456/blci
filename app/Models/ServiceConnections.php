@@ -285,4 +285,8 @@ class ServiceConnections extends Model
             return 'bg-info';
         }
     }
+
+    public static function whHeadStatus() {
+        return ['Administrator', 'Heads and Managers'];
+    }
 }
