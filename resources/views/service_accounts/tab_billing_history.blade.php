@@ -2,6 +2,7 @@
     <button class="btn btn-xs btn-success float-right" data-toggle="modal" data-target="#modal-print-ledger">Print Ledger</button>
     <button class="btn btn-xs btn-success float-right" data-toggle="modal" style="margin-right: 5px; margin-bottom: 5px;" data-target="#modal-ledger-history">View Full Ledger</button>
     <button class="btn btn-xs btn-default float-right" style="margin-right: 5px; margin-bottom: 5px;" data-toggle="modal" data-target="#modal-reading-history">View Reading History</button>
+    <a href="{{ route('readings.manual-reading-console', [$serviceAccounts->id]) }}" class="btn btn-xs btn-warning float-right" style="margin-right: 5px; margin-bottom: 5px;">Manual Billing</a>
 
     @if ($bills == null)
         <p class="center-text"><i>No billing history recorded</i></p>

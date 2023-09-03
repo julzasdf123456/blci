@@ -9,7 +9,11 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-5">
-                    <h4>Service Account Management Console</h4>
+                    <h4>Service Account Management Console 
+                        @if ($serviceAccounts->CheckBounceHistory == 'Yes')
+                            <span class="badge bg-danger">Bouncing Check History</span>
+                        @endif                         
+                    </h4>
                 </div>
                 <div class="col-sm-7">
                     @if (Auth::user()->hasAnyRole(['Administrator', 'Heads and Managers', 'Data Administrator'])) 
@@ -28,7 +32,14 @@
                             @elseif ($serviceAccounts->AccountStatus == 'ACTIVE')
                                 <button class="btn btn-xs btn-danger float-right" style="margin-right: 5px;" title="Disconnect This Account" data-toggle="modal" data-target="#modal-disconnect"><i class="fas fa-unlink ico-tab-mini"></i> Disconnect</button>
                             @endif
-                        @endif                   
+                        @endif   
+                        
+                        @if ($serviceAccounts->CheckBounceHistory == 'Yes')
+                        <button onclick="clearCheckBounce(`{{ $serviceAccounts->id }}`)" class="btn btn-xs btn-success float-right" style="margin-right: 15px;" title="Clear bounce check history"><i class="fas fa-exclamation-triangle ico-tab-mini"></i> Clear Bounced Check</button>
+                        @else
+                            <button onclick="markCheckBounce(`{{ $serviceAccounts->id }}`)" class="btn btn-xs btn-danger float-right" style="margin-right: 15px;" title="Mark this account with bouncing check history"><i class="fas fa-exclamation-triangle ico-tab-mini"></i> Bounced Check</button>
+                        @endif
+                        
                         
                         <a href="{{ route('serviceAccounts.update-step-one', [$serviceAccounts->id]) }}" class="btn btn-xs btn-warning float-right" style="margin-right: 30px;" title="Update Consumer Info"><i class="fas fa-pen ico-tab-mini"></i> Update</a>
                     @endif
@@ -388,6 +399,73 @@
                         icon: 'error',
                         title: 'Oops...',
                         text: 'An error occurred while pulling this account out!',
+                    })
+                }
+            })
+        }
+
+        function markCheckBounce(accountNo) {
+            Swal.fire({
+                title: 'Bounce Check History',
+                text : 'Does this account had a history of check payment bouncing?',
+                showDenyButton: true,
+                confirmButtonText: 'Yes',
+                denyButtonText: `No`,
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url : "{{ route('serviceAccounts.mark-bouncing-check') }}",
+                        type : 'GET',
+                        data : {
+                            id : accountNo,
+                        },
+                        success : function(res) {
+                            Toast.fire({
+                                text : 'Account Tagged With Bouncing Check',
+                                icon : 'success'
+                            })
+                            location.reload()
+                        },
+                        error : function(err) {
+                            Swal.fire({
+                                text : 'Error tagging account!',
+                                icon : 'error'
+                            })
+                        }
+                    })
+                }
+            })
+        }
+
+        function clearCheckBounce(accountNo) {
+            Swal.fire({
+                title: 'Clear Bounce Check History?',
+                showDenyButton: true,
+                confirmButtonText: 'Yes',
+                denyButtonText: `No`,
+            }).then((result) => {
+                /* Read more about isConfirmed, isDenied below */
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url : "{{ route('serviceAccounts.clear-bouncing-check') }}",
+                        type : 'GET',
+                        data : {
+                            id : accountNo,
+                        },
+                        success : function(res) {
+                            Toast.fire({
+                                text : 'Bouncing Check History Cleared',
+                                icon : 'success'
+                            })
+                            location.reload()
+                        },
+                        error : function(err) {
+                            Swal.fire({
+                                text : 'Error clearing bounch check history!',
+                                icon : 'error'
+                            })
+                        }
                     })
                 }
             })

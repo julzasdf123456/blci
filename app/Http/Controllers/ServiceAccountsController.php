@@ -227,6 +227,7 @@ class ServiceAccountsController extends AppBaseController
                     'CRM_Towns.Town',
                     'CRM_Barangays.Barangay',
                     'DownloadedByDisco',
+                    'CheckBounceHistory',
                     'users.name as MeterReader')
             ->where('Billing_ServiceAccounts.id', $id)
             ->first();
@@ -3021,5 +3022,21 @@ class ServiceAccountsController extends AppBaseController
                                 );
 
         return Excel::download($export, $status . "ACCOUNT_MASTER_LIST.xlsx");
+    }
+
+    public function markBouncingCheck(Request $request) {
+        $id = $request['id'];
+
+        ServiceAccounts::where('id', $id)->update(['CheckBounceHistory' => 'Yes']);
+
+        return response()->json('ok', 200);
+    }
+
+    public function clearBouncingCheck(Request $request) {
+        $id = $request['id'];
+
+        ServiceAccounts::where('id', $id)->update(['CheckBounceHistory' => null]);
+
+        return response()->json('ok', 200);
     }
 }

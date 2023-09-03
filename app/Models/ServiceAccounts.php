@@ -102,6 +102,7 @@ class ServiceAccounts extends Model
         'DownloadedByDisco',
         'Item1', // coop consumption = Yes
         'MeterNumber',
+        'CheckBounceHistory'
     ];
 
     /**
@@ -162,6 +163,7 @@ class ServiceAccounts extends Model
         'DownloadedByDisco' => 'string',
         'Item1' => 'string',
         'MeterNumber' => 'string',
+        'CheckBounceHistory' => 'string',
     ];
 
     /**
@@ -224,6 +226,7 @@ class ServiceAccounts extends Model
         'DownloadedByDisco' => 'nullable|string',
         'Item1' => 'nullable|string',
         'MeterNumber' => 'nullable|string',
+        'CheckBounceHistory' => 'nullable|string',
     ];
 
     public static function getAddress($serviceAccount) {

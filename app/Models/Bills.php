@@ -192,6 +192,8 @@ class Bills extends Model
         'Item3',
         'Item4', // CURRENT AMOUNT CUSTOMER TO DU (Solar Gen - Residual sa Previous)
         'Item5',
+        'PaidAmount',
+        'Balance',
     ];
 
     /**
@@ -297,7 +299,9 @@ class Bills extends Model
         'Item2' => 'string',
         'Item3' => 'string',
         'Item4' => 'string',
-        'Item5' => 'string',
+        'Item5' => 'string',        
+        'PaidAmount' => 'string',
+        'Balance' => 'string',
     ];
 
     /**
@@ -405,7 +409,9 @@ class Bills extends Model
         'Item2' => 'nullable|string',
         'Item3' => 'nullable|string',
         'Item4' => 'nullable|string',
-        'Item5' => 'nullable|string',
+        'Item5' => 'nullable|string',   
+        'PaidAmount' => 'nullable|string',
+        'Balance' => 'nullable|string',
     ];
 
     public static function getHighConsumptionPercentageAlert() {
