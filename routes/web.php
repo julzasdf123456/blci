@@ -922,3 +922,6 @@ Route::resource('blocks', App\Http\Controllers\BlocksController::class);
 
 
 Route::resource('meterInstallations', App\Http\Controllers\MeterInstallationController::class);
+
+
+Route::resource('notifications', App\Http\Controllers\NotificationsController::class);

@@ -10,6 +10,7 @@ use App\Models\ServiceConnectionTimeframes;
 use App\Models\IDGenerator;
 use App\Models\ServiceConnectionPayTransaction;
 use App\Models\ServiceConnectionTotalPayments;
+use App\Models\Notifications;
 use App\Models\Zones;
 use App\Models\Blocks;
 use Illuminate\Support\Facades\DB;
@@ -156,6 +157,29 @@ class ServiceConnectionInspectionsAPI extends Controller {
         } else {
             return response()->json(['error' => 'Error updating data'], 401);
         }
+    }
+
+    public function updateDownloadedInspection(Request $request) {
+        $data = $request['Data'];
+
+        $arr = explode(",", $data);
+
+        $len = count($arr);
+        for ($i=0; $i<$len; $i++) {
+            $serviceConnections = ServiceConnections::find($arr[$i]);
+
+            if ($serviceConnections != null) {
+                if ($serviceConnections->ContactNumber != null) {
+                    if (strlen($serviceConnections->ContactNumber) > 10 && strlen($serviceConnections->ContactNumber) < 13) {
+                        $msg = "BLCI Notification\n\nHello " . $serviceConnections->ServiceAccountName . ", \nYour " . $serviceConnections->AccountApplicationType . " application with control no. " . $arr[$i] . " is due for inspection today. " .
+                            "Expect a BLCI Inspector to visit your household until 5PM. \nHave a great day!";
+                        Notifications::createFreshSms($serviceConnections->ContactNumber, $msg, 'SERVICE CONNECTION INSPECTION', $arr[$i]);
+                    }                    
+                } 
+            }
+        }
+
+        return response()->json($arr, 200);
     }
 
     public function receiveBillDeposits(Request $request) {

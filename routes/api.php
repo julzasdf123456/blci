@@ -13,6 +13,7 @@ use App\Http\Controllers\API\MeterReaderTracksAPI;
 use App\Http\Controllers\API\ReadAndBillAPI;
 use App\Http\Controllers\API\DisconnectionAPI;
 use App\Http\Controllers\API\ThirdPartyAPI;
+use App\Http\Controllers\API\SMSNotificationsAPI;
 
 /*
 |--------------------------------------------------------------------------
@@ -102,4 +103,9 @@ Route::post('receive-disconnection-uploads', [DisconnectionAPI::class, 'receiveD
 Route::get('get-unpaid-bills-by-account-number', [ThirdPartyAPI::class, 'getUnpaidBillsByAccountNumber']);
 Route::post('attempt-transact-payment', [ThirdPartyAPI::class, 'attemptTransactPayment']);
 Route::post('transact-reconnection-fee', [ThirdPartyAPI::class, 'transactReconnectionFee']);
+
+// SMS NOTIFICATIONS
+Route::get('get-random-notification', [SMSNotificationsAPI::class, 'getRandomNotification']);
+Route::get('update-sms', [SMSNotificationsAPI::class, 'updateSMSNotification']);
+Route::get('update-downloaded-inspection', [ServiceConnectionInspectionsAPI::class, 'updateDownloadedInspection']);
 

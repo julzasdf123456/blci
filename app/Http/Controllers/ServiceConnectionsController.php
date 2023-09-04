@@ -47,6 +47,7 @@ use App\Models\PaymentOrder;
 use App\Models\CostCenters;
 use App\Models\ProjectCodes;
 use App\Models\MeterInstallation;
+use App\Models\Notifications;
 use App\Exports\ServiceConnectionApplicationsReportExport;
 use App\Exports\ServiceConnectionEnergizationReportExport;
 use App\Exports\DynamicExportsNoBillingMonth;
@@ -231,6 +232,15 @@ class ServiceConnectionsController extends AppBaseController
             } else {
                 $serviceConnections = $this->serviceConnectionsRepository->create($input);
 
+                // SEND SMS
+                if ($input['ContactNumber'] != null) {
+                    if (strlen($input['ContactNumber']) > 10 && strlen($input['ContactNumber']) < 13) {
+                        $msg = "BLCI Notification\n\nHello " . $serviceConnections->ServiceAccountName . ", \nYour " . $input['AccountApplicationType'] . " application with control no. " . $input['id'] . " has been received and will be processed shortly. " .
+                            "You will receive several SMS notifications in the future regarding the progress of your application. \nHave a great day!";
+                        Notifications::createFreshSms($input['ContactNumber'], $msg, 'SERVICE CONNECTIONS', $input['id']);
+                    }                    
+                } 
+
                 // CREATE INSPECTION
                 $inspection = new ServiceConnectionInspections;
                 $inspection->id = IDGenerator::generateID();
@@ -239,6 +249,15 @@ class ServiceConnectionsController extends AppBaseController
                 $inspection->Status = 'FOR INSPECTION';
                 $inspection->InspectionSchedule = $input['InspectionSchedule'];
                 $inspection->save();
+
+                // SEND SMS
+                if ($input['ContactNumber'] != null) {
+                    if (strlen($input['ContactNumber']) > 10 && strlen($input['ContactNumber']) < 13) {
+                        $msg = "BLCI Notification\n\nHello " . $serviceConnections->ServiceAccountName . ", \nYour " . $input['AccountApplicationType'] . " application with control no. " . $input['id'] . " has been schedule for inspection on " . date('F d, Y', strtotime($inspection->InspectionSchedule)) . ". " .
+                            "Please make sure that your household should have at least one (1) representative during the inspection process. \nHave a great day!";
+                        Notifications::createFreshSms($input['ContactNumber'], $msg, 'SERVICE CONNECTIONS', $input['id']);
+                    }                    
+                } 
 
                 // CREATE Timeframes
                 $timeFrame = new ServiceConnectionTimeframes;
