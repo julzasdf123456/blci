@@ -3509,6 +3509,23 @@ class ServiceConnectionsController extends AppBaseController
         $timeFrame->Notes = 'Status updated manually';
         $timeFrame->save();
 
+        $serviceConnections = ServiceConnections::find($id);
+
+        if ($status == 'For Payment') {
+            if ($serviceConnections != null) {
+
+                $paymentOrder = PaymentOrder::where('ServiceConnectionId', $id)->first();
+
+                if ($serviceConnections->ContactNumber != null) {
+                    if (strlen($serviceConnections->ContactNumber) > 10 && strlen($serviceConnections->ContactNumber) < 13) {
+                        $msg = "BLCI Notification\n\nHello " . $serviceConnections->ServiceAccountName . ", \nYour " . $serviceConnections->AccountApplicationType . " application with control no. " . $id . ", amounting P " . number_format($paymentOrder->OverAllTotal, 2) . ", is approved for payment. " .
+                            "You can now pay the fees to BLCI offices. \nHave a great day!";
+                        Notifications::createFreshSms($serviceConnections->ContactNumber, $msg, 'SERVICE CONNECTION INSPECTION', $id);
+                    }                    
+                } 
+            }
+        }
+
         return response()->json('ok', 200);
     }
 

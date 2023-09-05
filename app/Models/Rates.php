@@ -62,6 +62,8 @@ class Rates extends Model
 
     public $incrementing = false;
 
+    public $connection = "sqlsrv";
+
     public $fillable = [
         'id',
         'RateFor',
@@ -106,7 +108,14 @@ class Rates extends Model
         'SeniorCitizenDiscountAndSubsidyAdjustment',
         'FranchiseTax',
         'BusinessTax',
-        'TotalRateVATExcludedWithAdjustments'
+        'TotalRateVATExcludedWithAdjustments',
+        'Balance',
+        'ACRM',
+        'PowerActReduction',
+        'ACRMVAT',
+        'MissionaryElectrificationSPUG',
+        'MissionaryElectrificationSPUGTRUEUP',
+        'ConsumerTypeDescription',
     ];
 
     /**
@@ -158,7 +167,13 @@ class Rates extends Model
         'SeniorCitizenDiscountAndSubsidyAdjustment' => 'string',
         'FranchiseTax' => 'string',
         'BusinessTax' => 'string',
-        'TotalRateVATExcludedWithAdjustments' => 'string'
+        'TotalRateVATExcludedWithAdjustments' => 'string',
+        'ACRM' => 'string',
+        'PowerActReduction' => 'string',
+        'ACRMVAT' => 'string',
+        'MissionaryElectrificationSPUG' => 'string',
+        'MissionaryElectrificationSPUGTRUEUP' => 'string',
+        'ConsumerTypeDescription' => 'string',
     ];
 
     /**
@@ -212,7 +227,13 @@ class Rates extends Model
         'SeniorCitizenDiscountAndSubsidyAdjustment' => 'nullable|string',
         'FranchiseTax' => 'nullable|string',
         'BusinessTax' => 'nullable|string',
-        'TotalRateVATExcludedWithAdjustments' => 'nullable|string'
+        'TotalRateVATExcludedWithAdjustments' => 'nullable|string',
+        'ACRM' => 'nullable|string',
+        'PowerActReduction' => 'nullable|string',
+        'ACRMVAT' => 'nullable|string',
+        'MissionaryElectrificationSPUG' => 'nullable|string',
+        'MissionaryElectrificationSPUGTRUEUP' => 'nullable|string',
+        'ConsumerTypeDescription' => 'nullable|string',
     ];
 
     public static function floatRate($rate) {

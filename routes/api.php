@@ -34,6 +34,7 @@ Route::post('update-service-inspections/', [ServiceConnectionInspectionsAPI::cla
 Route::post('receive-bill-deposits', [ServiceConnectionInspectionsAPI::class, 'receiveBillDeposits']);
 Route::get('get-zones', [ServiceConnectionInspectionsAPI::class, 'getZones']);
 Route::get('get-blocks', [ServiceConnectionInspectionsAPI::class, 'getBlocks']);
+Route::get('update-downloaded-inspection', [ServiceConnectionInspectionsAPI::class, 'updateDownloadedInspection']);
 
 Route::get('get-payment-queues/', [TelleringController::class, 'fetchApprovedServiceConnections']);
 
@@ -107,5 +108,4 @@ Route::post('transact-reconnection-fee', [ThirdPartyAPI::class, 'transactReconne
 // SMS NOTIFICATIONS
 Route::get('get-random-notification', [SMSNotificationsAPI::class, 'getRandomNotification']);
 Route::get('update-sms', [SMSNotificationsAPI::class, 'updateSMSNotification']);
-Route::get('update-downloaded-inspection', [ServiceConnectionInspectionsAPI::class, 'updateDownloadedInspection']);
 

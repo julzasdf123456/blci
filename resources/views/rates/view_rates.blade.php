@@ -35,18 +35,20 @@
                     </div>
                     {{-- {{ dd($rates) }} --}}
                     <div class="card-body">
-                        <div class="tab-content">
+                        <div class="tab-content table-responsive p-0">
                             @foreach ($categories as $key => $categoryValue)
-                                <div class="tab-pane {{ $key==0 ? 'active' : '' }}" id="tab{{ $key }}">                           
+                                <div class="tab-pane {{ $key==0 ? 'active' : '' }}" id="tab{{ $key }} p-0">                           
                                     <table class="table table-hover table-sm table-bordered">
                                         <thead>
-                                            <tr>
+                                            {{-- <tr>
                                                 <th width="30%"></th>
                                                 <th class="text-center">RESIDENTIAL</th>
                                                 <th class="text-center" colspan="5">LOW VOLTAGE</th>
                                                 <th class="text-center" colspan="3">HIGHER VOLTAGE</th>
-                                            </tr>
+                                            </tr> --}}
+                                            
                                             <tr>
+                                                <th></th>
                                                 <th></th>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
@@ -54,13 +56,23 @@
                                                     @endif
                                                 @endforeach
                                             </tr>
+                                            <tr>
+                                                <th></th>
+                                                <th></th>
+                                                @foreach ($rates as $item)
+                                                    @if ($item->RateFor == $categoryValue->RateFor)
+                                                        <th class="text-center text-muted">{{ $item->ConsumerTypeDescription }}</th>
+                                                    @endif
+                                                @endforeach
+                                            </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <th>GENERATION AND TRANSMISSION CHARGES:</th>
+                                                <th colspan="17">GENERATION AND TRANSMISSION CHARGES:</th>
                                             </tr>
                                             <tr>
                                                 <td>Generation System</td>
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
                                                         <td class="text-right">{{ $item->GenerationSystemCharge==null ? '' : number_format($item->GenerationSystemCharge, 4) }}</td>
@@ -68,15 +80,17 @@
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <td>Transmission Delivery Charge (kW)</td>
+                                                <td>GRAM/ICERA/ACRM</td>
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->TransmissionDeliveryChargeKW==null ? '' : number_format($item->TransmissionDeliveryChargeKW, 4) }}</td>
+                                                        <td class="text-right">{{ $item->ACRM==null ? '' : number_format($item->ACRM, 4) }}</td>
                                                     @endif
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <td>Transmission Delivery Charge (kWH)</td>
+                                                <td>Transmission Delivery Charge</td>                                                
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
                                                         <td class="text-right">{{ $item->TransmissionDeliveryChargeKWH==null ? '' : number_format($item->TransmissionDeliveryChargeKWH, 4) }}</td>
@@ -84,7 +98,8 @@
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <td>System Loss Charge</td>
+                                                <td>System Loss Charge</td>                                                
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
                                                         <td class="text-right">{{ $item->SystemLossCharge==null ? '' : number_format($item->SystemLossCharge, 4) }}</td>
@@ -92,50 +107,8 @@
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <th>Other Generation Rate Adjustment (OGA) (KWH)</th>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->OtherGenerationRateAdjustment==null ? '' : number_format($item->OtherGenerationRateAdjustment, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <th>Other Transmission Cost Adjustment (OTCA) (KW)</th>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->OtherTransmissionCostAdjustmentKW==null ? '' : number_format($item->OtherTransmissionCostAdjustmentKW, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <th>Other Transmission Cost Adjustment (OTCA) (KWH)</th>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->OtherTransmissionCostAdjustmentKWH==null ? '' : number_format($item->OtherTransmissionCostAdjustmentKWH, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <th>Other System Loss Cost Adjustment (OSLA) (KWH)</th>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->OtherSystemLossCostAdjustment==null ? '' : number_format($item->OtherSystemLossCostAdjustment, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <th>DISTRIBUTION/SUPPLY/METERING CHARGES:</th>
-                                            </tr>
-                                            <tr>
-                                                <td>Distribution Demand Charge</td>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->DistributionDemandCharge==null ? '' : number_format($item->DistributionDemandCharge, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <td>Distribution System Charge</td>
+                                                <td>Distribution System</td>                                              
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
                                                         <td class="text-right">{{ $item->DistributionSystemCharge==null ? '' : number_format($item->DistributionSystemCharge, 4) }}</td>
@@ -143,23 +116,29 @@
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <td>Supply Retail Customer Charge</td>
+                                                <td>Distribution System</td>                                              
+                                                <td>P/kw</td>
+                                                @foreach ($rates as $item)
+                                                    @if ($item->RateFor == $categoryValue->RateFor)
+                                                        <td class="text-right">{{ $item->DistributionDemandCharge==null ? '' : number_format($item->DistributionDemandCharge, 4) }}</td>
+                                                    @endif
+                                                @endforeach
+                                            </tr>
+                                            <tr>
+                                                <td>Supply Retail Customer Charge</td>                                          
+                                                <td>P/cust/mo.</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
                                                         <td class="text-right">{{ $item->SupplyRetailCustomerCharge==null ? '' : number_format($item->SupplyRetailCustomerCharge, 4) }}</td>
                                                     @endif
                                                 @endforeach
+                                            </tr>                                            
+                                            <tr>
+                                                <th colspan="17">METERING CHARGES:</th>
                                             </tr>
                                             <tr>
-                                                <td>Supply System Charge</td>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->SupplySystemCharge==null ? '' : number_format($item->SupplySystemCharge, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <td>Metering Retail Customer Charge</td>
+                                                <td style="padding-left: 30px;">Metering Retail Customer Charge</td>                                      
+                                                <td>P/Meter/mo.</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
                                                         <td class="text-right">{{ $item->MeteringRetailCustomerCharge==null ? '' : number_format($item->MeteringRetailCustomerCharge, 4) }}</td>
@@ -167,7 +146,8 @@
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <td>Metering System Charge</td>
+                                                <td style="padding-left: 30px;">Metering System Charge</td>                                      
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
                                                         <td class="text-right">{{ $item->MeteringSystemCharge==null ? '' : number_format($item->MeteringSystemCharge, 4) }}</td>
@@ -175,18 +155,17 @@
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <td>RFSC</td>
+                                                <td>Power Act Reduction</td>                                      
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->RFSC==null ? '' : number_format($item->RFSC, 4) }}</td>
+                                                        <td class="text-right">{{ $item->PowerActReduction==null ? '' : number_format($item->PowerActReduction, 4) }}</td>
                                                     @endif
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <th>OTHERS:</th>
-                                            </tr>
-                                            <tr>
-                                                <td>Lifeline Rate (Discount/Subsidy)</td>
+                                                <td>Lifeline Rate Subsidy</td>                                   
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
                                                         <td class="text-right">{{ $item->LifelineRate==null ? '' : number_format($item->LifelineRate, 4) }}</td>
@@ -194,23 +173,8 @@
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <td>Inter-Class Cross Subsidy Charge</td>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->InterClassCrossSubsidyCharge==null ? '' : number_format($item->InterClassCrossSubsidyCharge, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <td>PPA (Refund)</td>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->PPARefund==null ? '' : number_format($item->PPARefund, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <td>Senior Citizen Subsidy</td>
+                                                <td>Senior Citizen Subsidy</td>                               
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
                                                         <td class="text-right">{{ $item->SeniorCitizenSubsidy==null ? '' : number_format($item->SeniorCitizenSubsidy, 4) }}</td>
@@ -218,50 +182,94 @@
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <th>Other Lifeline Rate Cost Adjustment (OLRA) (KWH)</th>
+                                                <td>Inter-Class Cross Subsidy Charge</td>                             
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->OtherLifelineRateCostAdjustment==null ? '' : number_format($item->OtherLifelineRateCostAdjustment, 4) }}</td>
+                                                        <td class="text-right">{{ $item->InterClassCrossSubsidyCharge==null ? '' : number_format($item->InterClassCrossSubsidyCharge, 4) }}</td>
                                                     @endif
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <th>Senior Citizen Discount & Subsidy Adjustment (KWH)</th>
+                                                <th colspan="17">VALUE ADDED TAXES:</th>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-left: 30px;">Generation</td>                        
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->SeniorCitizenDiscountAndSubsidyAdjustment==null ? '' : number_format($item->SeniorCitizenDiscountAndSubsidyAdjustment, 4) }}</td>
+                                                        <td class="text-right">{{ $item->GenerationVAT==null ? '' : number_format($item->GenerationVAT, 4) }}</td>
                                                     @endif
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <th>UNIVERSAL CHARGE:</th>
-                                            </tr>
-                                            <tr>
-                                                <td>Missionary Electrification Charge</td>
+                                                <td style="padding-left: 30px;">GRAM/ICERA/ACRM</td>                        
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->MissionaryElectrificationCharge==null ? '' : number_format($item->MissionaryElectrificationCharge, 4) }}</td>
+                                                        <td class="text-right">{{ $item->ACRMVAT==null ? '' : number_format($item->ACRMVAT, 4) }}</td>
                                                     @endif
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <td>Environmental Charge</td>
+                                                <td style="padding-left: 30px;">Transmission</td>                        
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->EnvironmentalCharge==null ? '' : number_format($item->EnvironmentalCharge, 4) }}</td>
+                                                        <td class="text-right">{{ $item->TransmissionVAT==null ? '' : number_format($item->TransmissionVAT, 4) }}</td>
                                                     @endif
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <td>Stranded Contract Costs</td>
+                                                <td style="padding-left: 30px;">System Loss</td>                        
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->StrandedContractCosts==null ? '' : number_format($item->StrandedContractCosts, 4) }}</td>
+                                                        <td class="text-right">{{ $item->SystemLossVAT==null ? '' : number_format($item->SystemLossVAT, 4) }}</td>
                                                     @endif
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <td>NPC Stranded Debt</td>
+                                                <th colspan="15">UNIVERSAL CHARGE:</th>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-left: 30px;">Missionary Elect.-SPUG</td>                    
+                                                <td>P/kwh</td>
+                                                @foreach ($rates as $item)
+                                                    @if ($item->RateFor == $categoryValue->RateFor)
+                                                        <td class="text-right">{{ $item->MissionaryElectrificationSPUG==null ? '' : number_format($item->MissionaryElectrificationSPUG, 4) }}</td>
+                                                    @endif
+                                                @endforeach
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-left: 30px;">Missionary Elect.-SPUG TRUE UP</td>                    
+                                                <td>P/kwh</td>
+                                                @foreach ($rates as $item)
+                                                    @if ($item->RateFor == $categoryValue->RateFor)
+                                                        <td class="text-right">{{ $item->MissionaryElectrificationSPUGTRUEUP==null ? '' : number_format($item->MissionaryElectrificationSPUGTRUEUP, 4) }}</td>
+                                                    @endif
+                                                @endforeach
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-left: 30px;">Missionary Elect.-RED</td>                
+                                                <td>P/kwh</td>
+                                                @foreach ($rates as $item)
+                                                    @if ($item->RateFor == $categoryValue->RateFor)
+                                                        <td class="text-right">{{ $item->MissionaryElectrificationREDCI==null ? '' : number_format($item->MissionaryElectrificationREDCI, 4) }}</td>
+                                                    @endif
+                                                @endforeach
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-left: 30px;">Environmental</td>
+                                                <td colspan="16" class="text-muted">Suspended starting June 2020 Billing Period.</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-left: 30px;">NPC Stranded Contract Cost</td>
+                                                <td colspan="16" class="text-muted">Ceased starting February 2020 Billing Period.</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-left: 30px;">NPC Stranded Debt</td>              
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
                                                         <td class="text-right">{{ $item->NPCStrandedDebt==null ? '' : number_format($item->NPCStrandedDebt, 4) }}</td>
@@ -270,70 +278,11 @@
                                             </tr>
                                             <tr>
                                                 <td>Feed-inTariff Allowance</td>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->FeedInTariffAllowance==null ? '' : number_format($item->FeedInTariffAllowance, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
+                                                <td colspan="16" class="text-muted">Temporary Suspension until August 2023.</td>
+                                            </tr>                                            
                                             <tr>
-                                                <td>Missionary Electrification - REDCI</td>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->MissionaryElectrificationREDCI==null ? '' : number_format($item->MissionaryElectrificationREDCI, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <th>TOTAL RATE PER KWH (VAT NOT INCLUDED)</th>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <th class="text-right">{{ $item->TotalRateVATExcluded==null ? '' : number_format($item->TotalRateVATExcluded, 4) }}</th>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <th>TOTAL RATE PER KWH (VAT NOT INCLUDED, WITH ADJ.)</th>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <th class="text-right">{{ $item->TotalRateVATExcludedWithAdjustments==null ? '' : number_format($item->TotalRateVATExcludedWithAdjustments, 4) }}</th>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <td>VAT Rate: Generation</td>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->GenerationVAT==null ? '' : number_format($item->GenerationVAT, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <td>VAT Rate: Transmission</td>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->TransmissionVAT==null ? '' : number_format($item->TransmissionVAT, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <td>VAT Rate: System Loss</td>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->SystemLossVAT==null ? '' : number_format($item->SystemLossVAT, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <td>VAT Rate: Distribution & Others</td>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->DistributionVAT==null ? '' : number_format($item->DistributionVAT, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <td>Franchise Tax</td>
+                                                <td>Local Franchise Tax</td>           
+                                                <td>P/kwh</td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
                                                         <td class="text-right">{{ $item->FranchiseTax==null ? '' : number_format($item->FranchiseTax, 4) }}</td>
@@ -341,23 +290,8 @@
                                                 @endforeach
                                             </tr>
                                             <tr>
-                                                <td>Business Tax</td>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->BusinessTax==null ? '' : number_format($item->BusinessTax, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <td>Real Property Tax (RPT)</td>
-                                                @foreach ($rates as $item)
-                                                    @if ($item->RateFor == $categoryValue->RateFor)
-                                                        <td class="text-right">{{ $item->RealPropertyTax==null ? '' : number_format($item->RealPropertyTax, 4) }}</td>
-                                                    @endif
-                                                @endforeach
-                                            </tr>
-                                            <tr>
-                                                <th>TOTAL RATE PER KWH (WITH ALL INCLUSIONS)</th>
+                                                <th>TOTAL RATE PER KWH</th>
+                                                <td></td>
                                                 @foreach ($rates as $item)
                                                     @if ($item->RateFor == $categoryValue->RateFor)
                                                         <th class="text-right">{{ $item->TotalRateVATIncluded==null ? '' : number_format($item->TotalRateVATIncluded, 4) }}</th>

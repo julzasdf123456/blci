@@ -8,15 +8,21 @@ use App\Repositories\RatesRepository;
 use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\ResidentialRate;
-use App\Imports\CommercialRate;
-use App\Imports\IndustrialRate;
-use App\Imports\WaterSystemsRate;
-use App\Imports\PublicBuildingRate;
-use App\Imports\StreetlightsRate;
-use App\Imports\IndustrialHVRate;
-use App\Imports\CommercialHVRate;
-use App\Imports\PublicBuildingHVRate;
+use App\Imports\ResidentialRateRS;
+use App\Imports\ResidentialRateRP;
+use App\Imports\CommercialRateC2;
+use App\Imports\CommercialRateC3;
+use App\Imports\RetailSuppliersRateRE;
+use App\Imports\CommercialRateCM;
+use App\Imports\CommercialRateCP;
+use App\Imports\PublicBuildingRateG2;
+use App\Imports\PublicBuildingRateG3;
+use App\Imports\PublicBuildingRateGV;
+use App\Imports\PublicBuildingRateGP;
+use App\Imports\HospitalRateH2;
+use App\Imports\HospitalRateH3;
+use App\Imports\HospitalRateHR;
+use App\Imports\HospitalRateHP;
 use App\Models\Rates;
 use App\Models\RateUploadHelper;
 use Illuminate\Support\Facades\DB;
@@ -185,55 +191,50 @@ class RatesController extends AppBaseController
             $file = $request->file('file');
             $userId = Auth::id();
 
-            $districts = [
-                new RateUploadHelper('02', 'E.B. MAGALONA', 63),
-                new RateUploadHelper('04', 'VICTORIAS', 118),
-                new RateUploadHelper('03', 'MANAPLA', 173),
-                new RateUploadHelper('01', 'CADIZ', 228),
-                new RateUploadHelper('06', 'SAGAY', 283),
-                new RateUploadHelper('07', 'ESCALANTE', 338),
-                new RateUploadHelper('09', 'TOBOSO', 393),
-                new RateUploadHelper('08', 'CALATRAVA', 448),
-                new RateUploadHelper('05', 'SAN CARLOS', 503),
-            ];
+            $residentialRatesRS = new ResidentialRateRS($period, $userId, env('APP_LOCATION'), env('APP_AREA_CODE'), 0);
+            Excel::import($residentialRatesRS, $file);
 
-            foreach($districts as $item) {
-                // RESIDENTIAL
-                $residentialRates = new ResidentialRate($period, $userId, $item->districtName, $item->area, $item->startingCell, 0);
-                Excel::import($residentialRates, $file);
+            $residentialRatesRP = new ResidentialRateRP($period, $userId, env('APP_LOCATION'), env('APP_AREA_CODE'), 0);
+            Excel::import($residentialRatesRP, $file);
 
-                // COMMERCIAL
-                $commercialRates = new CommercialRate($period, $userId, $item->districtName, $item->area, $item->startingCell, 0);
-                Excel::import($commercialRates, $file);
+            $commercialRatesC2 = new CommercialRateC2($period, $userId, env('APP_LOCATION'), env('APP_AREA_CODE'), 0);
+            Excel::import($commercialRatesC2, $file);
 
-                 // INDUSTRIAL
-                $industrialRates = new IndustrialRate($period, $userId, $item->districtName, $item->area, $item->startingCell, 0);
-                Excel::import($industrialRates, $file);
+            $commercialRatesC3 = new CommercialRateC3($period, $userId, env('APP_LOCATION'), env('APP_AREA_CODE'), 0);
+            Excel::import($commercialRatesC3, $file);
 
-                // WATER SYSTEMS
-                $waterSystemsRates = new WaterSystemsRate($period, $userId, $item->districtName, $item->area, $item->startingCell, 0);
-                Excel::import($waterSystemsRates, $file);
+            $retailSuppliersRE = new RetailSuppliersRateRE($period, $userId, env('APP_LOCATION'), env('APP_AREA_CODE'), 0);
+            Excel::import($retailSuppliersRE, $file);
 
-                // PUBLIC BUILDING
-                $publicBuildingRates = new PublicBuildingRate($period, $userId, $item->districtName, $item->area, $item->startingCell, 0);
-                Excel::import($publicBuildingRates, $file);
+            $commercialRatesCM = new CommercialRateCM($period, $userId, env('APP_LOCATION'), env('APP_AREA_CODE'), 0);
+            Excel::import($commercialRatesCM, $file);
 
-                // STREETLIGHTS
-                $streetlightsRates = new StreetlightsRate($period, $userId, $item->districtName, $item->area, $item->startingCell, 0);
-                Excel::import($streetlightsRates, $file);
+            $commercialRatesCP = new CommercialRateCP($period, $userId, env('APP_LOCATION'), env('APP_AREA_CODE'), 0);
+            Excel::import($commercialRatesCP, $file);
 
-                // INDUSTRIAL HIGH VOLTAGE
-                $industrialHvRates = new IndustrialHVRate($period, $userId, $item->districtName, $item->area, $item->startingCell, 0);
-                Excel::import($industrialHvRates, $file);
+            $publicBldgG2 = new PublicBuildingRateG2($period, $userId, env('APP_LOCATION'), env('APP_AREA_CODE'), 0);
+            Excel::import($publicBldgG2, $file);
 
-                // COMMERCIAL HIGH VOLTAGE
-                $commercialHvRates = new CommercialHVRate($period, $userId, $item->districtName, $item->area, $item->startingCell, 0);
-                Excel::import($commercialHvRates, $file);
+            $publicBldgG3 = new PublicBuildingRateG3($period, $userId, env('APP_LOCATION'), env('APP_AREA_CODE'), 0);
+            Excel::import($publicBldgG3, $file);
 
-                // PUBLIC BUILDING
-                $publicBuildingHVRates = new PublicBuildingHVRate($period, $userId, $item->districtName, $item->area, $item->startingCell, 0);
-                Excel::import($publicBuildingHVRates, $file);
-            }
+            $publicBldgGV = new PublicBuildingRateGV($period, $userId, env('APP_LOCATION'), env('APP_AREA_CODE'), 0);
+            Excel::import($publicBldgGV, $file);
+
+            $publicBldgGP = new PublicBuildingRateGP($period, $userId, env('APP_LOCATION'), env('APP_AREA_CODE'), 0);
+            Excel::import($publicBldgGP, $file);
+
+            $hospitalH2 = new HospitalRateH2($period, $userId, env('APP_LOCATION'), env('APP_AREA_CODE'), 0);
+            Excel::import($hospitalH2, $file);
+
+            $hospitalH3 = new HospitalRateH3($period, $userId, env('APP_LOCATION'), env('APP_AREA_CODE'), 0);
+            Excel::import($hospitalH3, $file);
+
+            $hospitalHR = new HospitalRateHR($period, $userId, env('APP_LOCATION'), env('APP_AREA_CODE'), 0);
+            Excel::import($hospitalHR, $file);
+
+            $hospitalHP = new HospitalRateHP($period, $userId, env('APP_LOCATION'), env('APP_AREA_CODE'), 0);
+            Excel::import($hospitalHP, $file);
 
             Flash::success('Rates for ' . date('F Y', strtotime($period)) . ' uploaded successfully.');
 

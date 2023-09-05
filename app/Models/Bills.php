@@ -194,6 +194,11 @@ class Bills extends Model
         'Item5',
         'PaidAmount',
         'Balance',
+        'ACRM',
+        'PowerActReduction',
+        'ACRMVAT',
+        'MissionaryElectrificationSPUG',
+        'MissionaryElectrificationSPUGTRUEUP',
     ];
 
     /**
@@ -302,6 +307,11 @@ class Bills extends Model
         'Item5' => 'string',        
         'PaidAmount' => 'string',
         'Balance' => 'string',
+        'ACRM' => 'string',
+        'PowerActReduction' => 'string',
+        'ACRMVAT' => 'string',
+        'MissionaryElectrificationSPUG' => 'string',
+        'MissionaryElectrificationSPUGTRUEUP' => 'string',
     ];
 
     /**
@@ -412,6 +422,11 @@ class Bills extends Model
         'Item5' => 'nullable|string',   
         'PaidAmount' => 'nullable|string',
         'Balance' => 'nullable|string',
+        'ACRM' => 'nullable|string',
+        'PowerActReduction' => 'nullable|string',
+        'ACRMVAT' => 'nullable|string',
+        'MissionaryElectrificationSPUG' => 'nullable|string',
+        'MissionaryElectrificationSPUGTRUEUP' => 'nullable|string',
     ];
 
     public static function getHighConsumptionPercentageAlert() {
