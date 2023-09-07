@@ -109,7 +109,6 @@ class Rates extends Model
         'FranchiseTax',
         'BusinessTax',
         'TotalRateVATExcludedWithAdjustments',
-        'Balance',
         'ACRM',
         'PowerActReduction',
         'ACRMVAT',

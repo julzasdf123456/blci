@@ -81,7 +81,9 @@ class ReadAndBillAPI extends Controller {
             //         ->orWhereNull('Billing_ServiceAccounts.AccountExpiration');
             // })
             ->whereRaw("((Billing_ServiceAccounts.AccountExpiration > '" . date('Y-m-d') . "' AND AccountRetention='Temporary') OR AccountRetention='Permanent' OR AccountExpiration IS NULL)")
-            ->select('Billing_ServiceAccounts.id', 
+            ->select(
+                DB::raw("NEWID() AS id"),
+                'Billing_ServiceAccounts.id AS AccountId', 
                 'Billing_ServiceAccounts.ServiceAccountName',
                 'Billing_ServiceAccounts.Multiplier',
                 'Billing_ServiceAccounts.Coreloss',
@@ -98,6 +100,7 @@ class ReadAndBillAPI extends Controller {
                 'Billing_ServiceAccounts.SeniorCitizen',
                 'Billing_ServiceAccounts.Evat5Percent',
                 'Billing_ServiceAccounts.Ewt2Percent',
+                'Billing_ServiceAccounts.Zone',
                 'CRM_Towns.Town as TownFull',
                 'CRM_Barangays.Barangay as BarangayFull',
                 'Billing_ServiceAccounts.Purok',
@@ -107,7 +110,7 @@ class ReadAndBillAPI extends Controller {
                 DB::raw("(SELECT TOP 1 KwhUsed FROM Billing_Readings WHERE ServicePeriod=(SELECT TOP 1 ServicePeriod FROM Billing_Readings WHERE AccountNumber=Billing_ServiceAccounts.id ORDER BY ServicePeriod DESC) AND AccountNumber=Billing_ServiceAccounts.id) AS KwhUsed"),
                 DB::raw("(SELECT TOP 1 KwhUsed FROM Billing_Bills WHERE ServicePeriod=(SELECT TOP 1 ServicePeriod FROM Billing_Bills WHERE AccountNumber=Billing_ServiceAccounts.id ORDER BY ServicePeriod DESC) AND AccountNumber=Billing_ServiceAccounts.id) AS PrevKwhUsed"),
                 DB::raw("(SELECT TOP 1 CAST(ReadingTimestamp AS DATE) FROM Billing_Readings WHERE ServicePeriod='" . $prevMonth . "' AND AccountNumber=Billing_ServiceAccounts.id) AS ReadingTimestamp"),
-                DB::raw("(SELECT TOP 1 SerialNumber FROM Billing_Meters WHERE ServiceAccountId=Billing_ServiceAccounts.id ORDER BY created_at DESC) AS MeterSerial"),
+                DB::raw("Billing_ServiceAccounts.MeterDetailsId AS MeterSerial"),
                 DB::raw("(SELECT TOP 1 Balance FROM Billing_PrePaymentBalance WHERE AccountNumber=Billing_ServiceAccounts.id ORDER BY created_at DESC) AS Deposit"),
                 DB::raw("(SELECT TOP 1 AdditionalKwhForNextBilling FROM Billing_ChangeMeterLogs WHERE AccountNumber=Billing_ServiceAccounts.id AND ServicePeriod='" . $request['ServicePeriod'] . "' ORDER BY created_at DESC) AS ChangeMeterAdditionalKwh"),
                 DB::raw("(SELECT TOP 1 NewMeterStartKwh FROM Billing_ChangeMeterLogs WHERE AccountNumber=Billing_ServiceAccounts.id AND ServicePeriod='" . $request['ServicePeriod'] . "' ORDER BY created_at DESC) AS ChangeMeterStartKwh"),
