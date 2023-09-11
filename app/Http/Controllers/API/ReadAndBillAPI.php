@@ -66,20 +66,9 @@ class ReadAndBillAPI extends Controller {
             ->where('Billing_ServiceAccounts.Town', $request['AreaCode'])
             ->where('Billing_ServiceAccounts.GroupCode', $request['GroupCode'])
             ->where('Billing_ServiceAccounts.MeterReader', $request['MeterReader'])
-            ->whereIn('Billing_ServiceAccounts.AccountStatus', ['ACTIVE', 'DISCONNECTED'])
-            ->whereNull('Billing_ServiceAccounts.OrganizationParentAccount')
-            ->whereRaw("(Billing_ServiceAccounts.NetMetered IS NULL OR Billing_ServiceAccounts.NetMetered='No') AND (Billing_ServiceAccounts.Main IS NULL OR Billing_ServiceAccounts.Main='No') 
-                AND Billing_ServiceAccounts.AccountType NOT IN ('PUBLIC BUILDING HIGH VOLTAGE', 'COMMERCIAL HIGH VOLTAGE', 'INDUSTRIAL HIGH VOLTAGE')
+            ->whereRaw("(Billing_ServiceAccounts.NetMetered IS NULL OR Billing_ServiceAccounts.NetMetered='No') AND Billing_ServiceAccounts.AccountStatus IN ('ACTIVE', 'DISCONNECTED') 
+                AND Billing_ServiceAccounts.AccountType NOT IN ('PUBLIC BUILDING HIGH VOLTAGE', 'COMMERCIAL HIGH VOLTAGE', 'INDUSTRIAL HIGH VOLTAGE') 
                 AND Billing_ServiceAccounts.id NOT IN (SELECT AccountNumber FROM Billing_Readings WHERE ServicePeriod='" . $request['ServicePeriod'] . "' AND AccountNumber IS NOT NULL)")
-            ->whereNull('Billing_ServiceAccounts.OrganizationParentAccount')
-            // ->where(function ($query) {
-            //     $query->where(function($queryX) {
-            //             $queryX->where('Billing_ServiceAccounts.AccountExpiration', '>', date('Y-m-d'))
-            //                 ->where('Billing_ServiceAccounts.AccountRetention', 'Temporary');
-            //         })
-            //         ->orWhere('Billing_ServiceAccounts.AccountRetention', 'Permanent')
-            //         ->orWhereNull('Billing_ServiceAccounts.AccountExpiration');
-            // })
             ->whereRaw("((Billing_ServiceAccounts.AccountExpiration > '" . date('Y-m-d') . "' AND AccountRetention='Temporary') OR AccountRetention='Permanent' OR AccountExpiration IS NULL)")
             ->select(
                 DB::raw("NEWID() AS id"),
@@ -101,6 +90,8 @@ class ReadAndBillAPI extends Controller {
                 'Billing_ServiceAccounts.Evat5Percent',
                 'Billing_ServiceAccounts.Ewt2Percent',
                 'Billing_ServiceAccounts.Zone',
+                'Billing_ServiceAccounts.Lifeliner',
+                'Billing_ServiceAccounts.LifelinerDateExpire',
                 'CRM_Towns.Town as TownFull',
                 'CRM_Barangays.Barangay as BarangayFull',
                 'Billing_ServiceAccounts.Purok',

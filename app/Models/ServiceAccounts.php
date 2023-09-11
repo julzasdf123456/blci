@@ -104,6 +104,9 @@ class ServiceAccounts extends Model
         'MeterNumber',
         'CheckBounceHistory',
         'Zone',
+        'Lifeliner',
+        'LifelinerDateApplied',
+        'LifelinerDateExpire',
     ];
 
     /**
@@ -166,6 +169,9 @@ class ServiceAccounts extends Model
         'MeterNumber' => 'string',
         'CheckBounceHistory' => 'string',
         'Zone' => 'string',
+        'Lifeliner' => 'string',
+        'LifelinerDateApplied' => 'string',
+        'LifelinerDateExpire' => 'string',
     ];
 
     /**
@@ -230,6 +236,9 @@ class ServiceAccounts extends Model
         'MeterNumber' => 'nullable|string',
         'CheckBounceHistory' => 'nullable|string',
         'Zone' => 'nullable|string',
+        'Lifeliner' => 'nullable|string',
+        'LifelinerDateApplied' => 'nullable|string',
+        'LifelinerDateExpire' => 'nullable|string',
     ];
 
     public static function getAddress($serviceAccount) {

@@ -57,7 +57,7 @@
                             @else
                                 <a href="{{ route('bills.print-single-bill-new-format', [$bills->id]) }}" class="btn btn-link" title="Print New Formatted Bill"><i class="fas fa-print"></i></a>
                             @endif                            
-                            <a href="{{ route('bills.print-single-bill-old', [$bills->id]) }}" class="btn btn-link text-warning" title="Print Pre-Formatted Bill (Old)"><i class="fas fa-print"></i></a>
+                            {{-- <a href="{{ route('bills.print-single-bill-old', [$bills->id]) }}" class="btn btn-link text-warning" title="Print Pre-Formatted Bill (Old)"><i class="fas fa-print"></i></a> --}}
                         </div>
                     </div>
                     <div class="card-body">
@@ -157,10 +157,10 @@
                                                     <td class="text-right">{{ number_format($bills->GenerationSystemCharge, 2) }}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="indent-td">Transmission Delivery Charge</td>
-                                                    <td class="indent-td">Per KW</td>
-                                                    <td class="text-right">{{ $rate->TransmissionDeliveryChargeKW }}</td>
-                                                    <td class="text-right">{{ number_format($bills->TransmissionDeliveryChargeKW, 2) }}</td>
+                                                    <td class="indent-td">GRAM/ICERA/ACRM</td>
+                                                    <td class="indent-td">Per KWH</td>
+                                                    <td class="text-right">{{ $rate->ACRM }}</td>
+                                                    <td class="text-right">{{ number_format($bills->ACRM, 2) }}</td>
                                                 </tr>
                                                 <tr>
                                                     <td class="indent-td">Transmission Delivery Charge</td>
@@ -174,30 +174,6 @@
                                                     <td class="text-right">{{ $rate->SystemLossCharge }}</td>
                                                     <td class="text-right">{{ number_format($bills->SystemLossCharge, 2) }}</td>
                                                 </tr>
-                                                <tr>
-                                                    <td class="indent-td">Other Generation Rate Adj. (OGA)</td>
-                                                    <td class="indent-td">Per KWH</td>
-                                                    <td class="text-right">{{ $rate->OtherGenerationRateAdjustment }}</td>
-                                                    <td class="text-right">{{ number_format($bills->OtherGenerationRateAdjustment, 2) }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="indent-td">Other Transmission Cost Adj. (OTCA)</td>
-                                                    <td class="indent-td">Per KW</td>
-                                                    <td class="text-right">{{ $rate->OtherTransmissionCostAdjustmentKW }}</td>
-                                                    <td class="text-right">{{ number_format($bills->OtherTransmissionCostAdjustmentKW, 2) }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="indent-td">Other Transmission Cost Adj. (OTCA)</td>
-                                                    <td class="indent-td">Per KWH</td>
-                                                    <td class="text-right">{{ $rate->OtherTransmissionCostAdjustmentKWH }}</td>
-                                                    <td class="text-right">{{ number_format($bills->OtherTransmissionCostAdjustmentKWH, 2) }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="indent-td">Other System Loss Cost Adj. (OSLA)</td>
-                                                    <td class="indent-td">Per KWH</td>
-                                                    <td class="text-right">{{ $rate->OtherSystemLossCostAdjustment }}</td>
-                                                    <td class="text-right">{{ number_format($bills->OtherSystemLossCostAdjustment, 2) }}</td>
-                                                </tr>
 
                                                 <tr>
                                                     <th>Distribution, Metering, & Supply Charges</th>
@@ -206,7 +182,7 @@
                                                     <th></th>
                                                 </tr>
                                                 <tr>
-                                                    <td class="indent-td">Distribution Demand  Charge</td>
+                                                    <td class="indent-td">Distribution Demand Charge</td>
                                                     <td class="indent-td">Per KW</td>
                                                     <td class="text-right">{{ $rate->DistributionDemandCharge }}</td>
                                                     <td class="text-right">{{ number_format($bills->DistributionDemandCharge, 2) }}</td>
@@ -224,12 +200,6 @@
                                                     <td class="text-right">{{ number_format($bills->SupplyRetailCustomerCharge, 2) }}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="indent-td">Supply System Charge</td>
-                                                    <td class="indent-td">Per KWH</td>
-                                                    <td class="text-right">{{ $rate->SupplySystemCharge }}</td>
-                                                    <td class="text-right">{{ number_format($bills->SupplySystemCharge, 2) }}</td>
-                                                </tr>
-                                                <tr>
                                                     <td class="indent-td">Metering Retail Customer Charge</td>
                                                     <td class="indent-td">Per cust/mo</td>
                                                     <td class="text-right">{{ $rate->MeteringRetailCustomerCharge }}</td>
@@ -240,12 +210,6 @@
                                                     <td class="indent-td">Per KWH</td>
                                                     <td class="text-right">{{ $rate->MeteringSystemCharge }}</td>
                                                     <td class="text-right">{{ number_format($bills->MeteringSystemCharge, 2) }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="indent-td">RFSC</td>
-                                                    <td class="indent-td">Per KWH</td>
-                                                    <td class="text-right">{{ $rate->RFSC }}</td>
-                                                    <td class="text-right">{{ number_format($bills->RFSC, 2) }}</td>
                                                 </tr>
 
                                                 <tr>
@@ -259,6 +223,12 @@
                                                     <td class="indent-td">Per KWH</td>
                                                     <td class="text-right">{{ $rate->FranchiseTax }}</td>
                                                     <td class="text-right">{{ number_format($bills->FranchiseTax, 2) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="indent-td">Franchise Tax (Others)</td>
+                                                    <td class="indent-td">Per KWH</td>
+                                                    <td class="text-right"><strong>????</strong></td>
+                                                    <td class="text-right">{{ number_format($bills->FranchiseTaxOthers, 2) }}</td>
                                                 </tr>
                                                 <tr>
                                                     <td class="indent-td">Business Tax</td>
@@ -305,10 +275,10 @@
                                                     <td class="text-right">{{ number_format($bills->InterClassCrossSubsidyCharge, 2) }}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="indent-td">PPA (Refund)</td>
+                                                    <td class="indent-td">Power Act Reduction</td>
                                                     <td class="indent-td">Per KWH</td>
-                                                    <td class="text-right">{{ $rate->PPARefund }}</td>
-                                                    <td class="text-right">{{ number_format($bills->PPARefund, 2) }}</td>
+                                                    <td class="text-right">{{ $rate->PowerActReduction }}</td>
+                                                    <td class="text-right">{{ number_format($bills->PowerActReduction, 2) }}</td>
                                                 </tr>
                                                 <tr>
                                                     <td class="indent-td">Senior Citizen Subsidy</td>
@@ -316,30 +286,12 @@
                                                     <td class="text-right">{{ $rate->SeniorCitizenSubsidy }}</td>
                                                     <td class="text-right">{{ number_format($bills->SeniorCitizenSubsidy, 2) }}</td>
                                                 </tr>
-                                                <tr>
-                                                    <td class="indent-td">Other Lifeline Rate Cost Adj. (OLRA)</td>
-                                                    <td class="indent-td">Per KWH</td>
-                                                    <td class="text-right">{{ $rate->OtherLifelineRateCostAdjustment }}</td>
-                                                    <td class="text-right">{{ number_format($bills->OtherLifelineRateCostAdjustment, 2) }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="indent-td">SC Discount & Subsidy Adj.</td>
-                                                    <td class="indent-td">Per KWH</td>
-                                                    <td class="text-right">{{ $rate->SeniorCitizenDiscountAndSubsidyAdjustment }}</td>
-                                                    <td class="text-right">{{ number_format($bills->SeniorCitizenDiscountAndSubsidyAdjustment, 2) }}</td>
-                                                </tr>
 
                                                 <tr>
                                                     <th>Universal Charges</th>
                                                     <th></th>
                                                     <th></th>
                                                     <th></th>
-                                                </tr>
-                                                <tr>
-                                                    <td class="indent-td">Missionary Electrification Charge</td>
-                                                    <td class="indent-td">Per KWH</td>
-                                                    <td class="text-right">{{ $rate->MissionaryElectrificationCharge }}</td>
-                                                    <td class="text-right">{{ number_format($bills->MissionaryElectrificationCharge, 2) }}</td>
                                                 </tr>
                                                 <tr>
                                                     <td class="indent-td">Environmental Charge</td>
@@ -366,10 +318,22 @@
                                                     <td class="text-right">{{ number_format($bills->FeedInTariffAllowance, 2) }}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="indent-td">Missionary Electrification - REDCI</td>
+                                                    <td class="indent-td">Missionary Electrification - RED</td>
                                                     <td class="indent-td">Per KWH</td>
                                                     <td class="text-right">{{ $rate->MissionaryElectrificationREDCI }}</td>
                                                     <td class="text-right">{{ number_format($bills->MissionaryElectrificationREDCI, 2) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="indent-td">Missionary Electrification - SPUG</td>
+                                                    <td class="indent-td">Per KWH</td>
+                                                    <td class="text-right">{{ $rate->MissionaryElectrificationSPUG }}</td>
+                                                    <td class="text-right">{{ number_format($bills->MissionaryElectrificationSPUG, 2) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="indent-td">Missionary Electrification - SPUG TRUE UP</td>
+                                                    <td class="indent-td">Per KWH</td>
+                                                    <td class="text-right">{{ $rate->MissionaryElectrificationSPUGTRUEUP }}</td>
+                                                    <td class="text-right">{{ number_format($bills->MissionaryElectrificationSPUGTRUEUP, 2) }}</td>
                                                 </tr>
 
                                                 <tr>
@@ -401,6 +365,12 @@
                                                     <td class="indent-td">Per KWH</td>
                                                     <td class="text-right">{{ $rate->DistributionVAT }}</td>
                                                     <td class="text-right">{{ number_format($bills->DistributionVAT, 2) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="indent-td">GRAM/ICERA/ACRM</td>
+                                                    <td class="indent-td">Per KWH</td>
+                                                    <td class="text-right">{{ $rate->ACRMVAT }}</td>
+                                                    <td class="text-right">{{ number_format($bills->ACRMVAT, 2) }}</td>
                                                 </tr>
 
                                                 @if ($account->NetMetered=='Yes')

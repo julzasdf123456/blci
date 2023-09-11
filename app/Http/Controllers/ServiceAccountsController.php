@@ -2536,19 +2536,13 @@ class ServiceAccountsController extends AppBaseController
                 ->orderBy('Billing_ServiceAccounts.AreaCode')
                 ->get();
         }       
-
-        $meterReaders = DB::table('Billing_ServiceAccounts')
-            ->leftJoin('users', 'Billing_ServiceAccounts.MeterReader', '=', 'users.id')
-            ->whereRaw("Billing_ServiceAccounts.Town='" . $town . "' AND Billing_ServiceAccounts.MeterReader IS NOT NULL")
-            ->select('users.name', 'Billing_ServiceAccounts.MeterReader')
-            ->groupBy('users.name', 'Billing_ServiceAccounts.MeterReader')
-            ->orderBy('users.name')
-            ->get();
+            
+        $meterReaders = User::role('Meter Reader Inhouse')->orderBy('name')->get();
 
         $mreaderSelect = "";
         foreach($meterReaders as $mreader) {
             $mreaderSelect .= "
-                <option value='" . $mreader->MeterReader . "'>" . $mreader->name . "</option>
+                <option value='" . $mreader->id . "'>" . $mreader->name . "</option>
             ";
         }
 

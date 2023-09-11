@@ -199,6 +199,7 @@ class Bills extends Model
         'ACRMVAT',
         'MissionaryElectrificationSPUG',
         'MissionaryElectrificationSPUGTRUEUP',
+        'FranchiseTaxOthers',
     ];
 
     /**
@@ -312,6 +313,7 @@ class Bills extends Model
         'ACRMVAT' => 'string',
         'MissionaryElectrificationSPUG' => 'string',
         'MissionaryElectrificationSPUGTRUEUP' => 'string',
+        'FranchiseTaxOthers' => 'string',
     ];
 
     /**
@@ -427,6 +429,7 @@ class Bills extends Model
         'ACRMVAT' => 'nullable|string',
         'MissionaryElectrificationSPUG' => 'nullable|string',
         'MissionaryElectrificationSPUGTRUEUP' => 'nullable|string',
+        'FranchiseTaxOthers' => 'nullable|string',
     ];
 
     public static function getHighConsumptionPercentageAlert() {

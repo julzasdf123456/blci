@@ -62,7 +62,7 @@
                                 <a href="{{ route('bills.print-single-bill-new-format', [$item->id]) }}" class="btn btn-xs btn-link" title="Print New Formatted Bill"><i class="fas fa-print"></i></a>
                             @endif
                             
-                            <a href="{{ route('bills.print-single-bill-old', [$item->id]) }}" class="btn btn-link btn-xs text-warning" title="Print Pre-Formatted Bill (Old)"><i class="fas fa-print"></i></a>
+                            {{-- <a href="{{ route('bills.print-single-bill-old', [$item->id]) }}" class="btn btn-link btn-xs text-warning" title="Print Pre-Formatted Bill (Old)"><i class="fas fa-print"></i></a> --}}
                             <button class="btn btn-link btn-xs text-default" title="Adjustment History" onclick="showBillHistory('{{ $item->id }}')"><i class="fas fa-history"></i></button>
                         </td>
                     </tr>
